@@ -13,11 +13,16 @@ Inside this Astro project, you'll see the following structure:
 ├── src/
 │   ├── assets/         # Project assets like images and fonts
 │   ├── components/     # Reusable Astro UI components
-│   ├── content/        # Markdown files for blog posts (en / zh-tw)
+│   ├── content/        # Content collections
+│   │   └── blog/       # Markdown files for blog posts
+│   │       ├── en/     # English posts
+│   │       └── zh-tw/  # Traditional Chinese posts
 │   ├── i18n/           # Internationalization routing and utilities
-│   ├── languages/      # Language dictionaries
+│   ├── languages/      # Language dictionaries (e.g., en.ts, zh-tw.ts)
 │   ├── layouts/        # Page layouts
 │   ├── pages/          # Astro pages and routing
+│   │   ├── en/         # English pages routing
+│   │   └── ...         # Default (zh-tw) routing
 │   ├── plugins/        # Custom Astro/Markdown plugins
 │   ├── styles/         # Global styles (CSS, Stylus)
 │   └── utils/          # Utility functions
