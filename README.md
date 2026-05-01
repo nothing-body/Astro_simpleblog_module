@@ -1,29 +1,30 @@
-# Astro Starter Kit: Minimal
+# Minimal Static Personal Blog
 
-```sh
-npm create astro@latest -- --template minimal
-```
-
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+This project is an extremely simple personal blog built with [Astro](https://astro.build/).
+It is designed to be fully static, containing **no dynamic code**, to ensure maximum performance, security, and simplicity.
 
 ## 🚀 Project Structure
 
-Inside of your Astro project, you'll see the following folders and files:
+Inside this Astro project, you'll see the following structure:
 
 ```text
 /
-├── public/
+├── public/             # Static assets that are served directly
 ├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+│   ├── assets/         # Project assets like images and fonts
+│   ├── components/     # Reusable Astro UI components
+│   ├── content/        # Markdown files for blog posts (en / zh-tw)
+│   ├── i18n/           # Internationalization routing and utilities
+│   ├── languages/      # Language dictionaries
+│   ├── layouts/        # Page layouts
+│   ├── pages/          # Astro pages and routing
+│   ├── plugins/        # Custom Astro/Markdown plugins
+│   ├── styles/         # Global styles (CSS, Stylus)
+│   └── utils/          # Utility functions
+├── astro.config.mjs    # Astro configuration file
+├── package.json        # Project dependencies and scripts
+└── tsconfig.json       # TypeScript configuration
 ```
-
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/` directory.
 
 ## 🧞 Commands
 
@@ -35,9 +36,3 @@ All commands are run from the root of the project, from a terminal:
 | `npm run dev`             | Starts local dev server at `localhost:4321`      |
 | `npm run build`           | Build your production site to `./dist/`          |
 | `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).

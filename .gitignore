@@ -20,3 +20,7 @@ check.*
 .env
 .env.production
 .env.*
+.env.development
+
+# OS files
+.DS_Store
