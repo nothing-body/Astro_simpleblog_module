@@ -1,0 +1,180 @@
+---
+/* src/layouts/BaseLayout.astro */
+import Navbar from "../components/Navbar.astro";
+import HeadMeta from "../components/HeadMeta.astro";
+import Footer from "../components/Footer.astro";
+import CookieConsent from "../components/CookieConsent.astro";
+import { getLangFromUrl } from "../i18n/utils";
+
+const {
+  title = "夈似",
+  description = "分享軟體使用心得、記錄/分享查找到的有趣/實用軟體、生活日常與隨手小記的個人網站與數位筆記",
+  customCanonical,
+} = Astro.props;
+const currentPath = Astro.url.pathname;
+const siteUrl = Astro.site
+  ? Astro.site.toString().replace(/\/$/, "")
+  : "https://blog.ouoxo.com";
+const currentUrl = customCanonical || new URL(currentPath, siteUrl).href;
+
+const lang = getLangFromUrl(Astro.url);
+const htmlLang = lang === 'en' ? 'en' : 'zh-TW';
+---
+
+<!doctype html>
+<html lang={htmlLang}>
+  <head>
+    <HeadMeta title={title} description={description} currentUrl={currentUrl} siteUrl={siteUrl} />
+  </head>
+  <body>
+    <Navbar />
+    
+    <slot />
+
+    <Footer htmlLang={htmlLang} />
+    <CookieConsent htmlLang={htmlLang} />
+
+    <style is:global>
+      html {
+        scroll-behavior: smooth;
+      }
+      :root {
+        --primary-red: #b85c4d;
+        --text-main: #2d2d2d;
+        --bg-color: #f9f8f4;
+      }
+      * {
+        box-sizing: border-box;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: radial-gradient(circle at center, #fdfcfb 0%, #e2d1c3 100%);
+        background-attachment: fixed;
+        min-height: 100vh;
+        width: 100%;
+        overflow-x: hidden;
+        color: var(--text-main);
+        font-family:
+          system-ui,
+          -apple-system,
+          "Microsoft JhengHei",
+          sans-serif;
+        padding-top: 80px;
+        position: relative;
+      }
+      .page-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
+      }
+      .content-wrapper {
+        display: flex;
+        gap: 2rem;
+        align-items: flex-start;
+      }
+      .sidebar {
+        width: 260px;
+        flex-shrink: 0;
+      }
+      .main-content {
+        flex-grow: 1;
+        min-width: 0;
+      }
+      @media (max-width: 768px) {
+        .page-container {
+          padding: 1.5rem 1rem;
+        }
+        .content-wrapper {
+          flex-direction: column;
+          gap: 2.5rem;
+        }
+        .sidebar {
+          width: 100%;
+          order: 2;
+        }
+        .main-content {
+          order: 1;
+        }
+      }
+      .glass-card {
+        background: #fff;
+        border-radius: 25px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+        margin-bottom: 1.2rem;
+        overflow: hidden;
+      }
+      .post-container-link {
+        display: flex;
+        flex-direction: column;
+        padding: 1.2rem 2.5rem !important;
+        text-decoration: none !important;
+        color: inherit !important;
+        line-height: 1.5 !important;
+      }
+      @media (max-width: 768px) {
+        .post-container-link {
+          padding: 1.2rem 1.5rem !important;
+        }
+      }
+      .post-title {
+        font-size: 1.6rem !important;
+        font-weight: 800 !important;
+        margin: 0.5rem 0 1.5rem 0 !important;
+        line-height: 1.2 !important;
+        color: var(--text-main) !important;
+      }
+      .widget-title {
+        font-size: 1.1rem;
+        font-weight: 800;
+        margin-bottom: 1.2rem;
+        display: flex;
+        align-items: center;
+      }
+      .widget-title::before {
+        content: "";
+        width: 4px;
+        height: 16px;
+        background: var(--primary-red);
+        border-radius: 2px;
+        margin-right: 10px;
+      }
+      .category-list {
+        list-style: none !important;
+        padding: 0 !important;
+      }
+      .cat-link {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.8rem 0;
+        color: #444 !important;
+        text-decoration: none !important;
+        font-size: 0.95rem;
+        border-bottom: 1px dashed rgba(0, 0, 0, 0.05);
+      }
+      .tag-box {
+        display: inline-block;
+        padding: 4px 12px;
+        background: #f0f0f0;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        color: #666;
+        text-decoration: none;
+        margin: 0 8px 8px 0;
+      }
+      .page-divider {
+        border: none;
+        border-top: 2px solid #333;
+        margin: 0 0 2.5rem 0;
+        width: 100%;
+        opacity: 0.8;
+      }
+      .about-enhanced { max-width: 800px; margin: 0 auto; font-size: 1.1rem; line-height: 2; }
+      .about-enhanced p { margin-bottom: 2rem; color: #444; }
+      .about-enhanced h2 { font-size: 2rem; margin-bottom: 1.5rem; color: var(--primary-red); font-weight: 800; }
+      .about-enhanced h3 { font-size: 1.5rem; margin-top: 2.5rem; margin-bottom: 1rem; color: #333; font-weight: 700; }
+    </style>
+  </body>
+</html>

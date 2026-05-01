@@ -1,0 +1,224 @@
+---
+/* src/layouts/MarkdownPostLayout.astro */
+import BaseLayout from "./BaseLayout.astro";
+import PostCopyright from "../components/PostCopyright.astro";
+import { getLangFromUrl, useTranslations, useTranslatedPath, getDynamicCategoryMapping } from '../i18n/utils';
+
+import "../styles/global.css";
+import "../styles/base.stylus";
+import "../styles/markdown.stylus";
+import "katex/dist/katex.min.css";
+
+const { frontmatter, headings = [] } = Astro.props;
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+const translatePath = useTranslatedPath(lang);
+
+const categoryMapping = await getDynamicCategoryMapping();
+const currentCategory = frontmatter.category;
+
+const dateLocale = lang === 'en' ? 'en-GB' : 'zh-TW';
+const formattedDate = new Date(frontmatter.pubDate).toLocaleDateString(dateLocale, {
+  year: 'numeric', month: '2-digit', day: '2-digit'
+});
+
+const slug = Astro.url.pathname;
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site).href;
+---
+
+<BaseLayout title={frontmatter.title}>
+  <script type="application/ld+json" set:html={`
+    {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      "headline": ${JSON.stringify(frontmatter.title)},
+      "description": ${JSON.stringify(frontmatter.description || frontmatter.title)},
+      "datePublished": ${JSON.stringify(new Date(frontmatter.pubDate).toISOString())},
+      "author": {
+        "@type": "Person",
+        "name": "夈似"
+      },
+      "articleSection": ${JSON.stringify(currentCategory || 'Uncategorized')},
+      "keywords": ${JSON.stringify((frontmatter.tags || []).join(', '))},
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": ${JSON.stringify(canonicalUrl)}
+      }
+    }
+  `} />
+  <div class="immersion-read-container">
+
+    <article class="post-article-body">
+      
+      <header class="post-header">
+        <div class="post-meta">
+          <span class="post-category">{currentCategory || (lang === 'en' ? 'Uncategorized' : '未分類')}</span>
+          <span class="meta-dot">·</span>
+          <time class="post-date">{formattedDate}</time>
+        </div>
+        
+        <h1 class="post-main-title">{frontmatter.title}</h1>
+        
+        <div class="post-tags-list">
+          {(frontmatter.tags || []).map((tag: string) => (
+            <a href={translatePath(`/tags/${tag}/1`)} class="inline-tag">#{tag}</a>
+          ))}
+        </div>
+
+        <div class="accent-divider"></div>
+      </header>
+
+      <div class="mt-8 article-entry">
+        <slot />
+      </div>
+
+      <PostCopyright canonicalUrl={canonicalUrl} title={frontmatter.title} lang={lang} />
+
+      <footer class="post-footer">
+        <div class="footer-hr"></div>
+        <nav class="post-navigation">
+          <a href={translatePath('/posts')} class="back-link" id="post-back-link">
+            <span class="arrow">{t('nav.back')}</span>
+          </a>
+        </nav>
+      </footer>
+
+    </article>
+  </div>
+</BaseLayout>
+
+<script define:vars={{ lang, categoryMapping, currentCategory }}>
+  window.addEventListener('DOMContentLoaded', () => {
+    try {
+      const backLink = document.getElementById('post-back-link');
+      if (!(backLink instanceof HTMLAnchorElement)) return;
+
+      let lastPath = sessionStorage.getItem('lastListPage');
+      const currentPath = window.location.pathname;
+
+      // 嚴格驗證路徑：必須是 / 開頭且第二字元非 /（排除 //evil.com 等 open redirect）
+      if (!lastPath || lastPath === currentPath || !/^\/[^/]/.test(lastPath)) {
+        return;
+      }
+
+      const isEnPath = lastPath.startsWith('/en');
+      const targetIsEn = lang === 'en';
+
+      if (isEnPath !== targetIsEn) {
+        if (lastPath.includes('/categories/')) {
+          const parts = lastPath.split('/').filter(Boolean);
+          const catName = decodeURIComponent(parts[isEnPath ? 2 : 1] || '');
+          const translatedCat = categoryMapping[catName] || currentCategory;
+          
+          if (translatedCat) {
+            lastPath = targetIsEn ? `/en/categories/${translatedCat}/1` : `/categories/${translatedCat}/1`;
+          } else {
+            lastPath = targetIsEn ? '/en/posts' : '/posts';
+          }
+        } 
+        else if (lastPath.includes('/tags/')) {
+          const parts = lastPath.split('/').filter(Boolean);
+          const tagName = decodeURIComponent(parts[isEnPath ? 2 : 1] || '');
+          lastPath = targetIsEn ? `/en/tags/${tagName}/1` : `/tags/${tagName}/1`;
+        }
+        else {
+          lastPath = targetIsEn ? '/en/posts' : '/posts';
+        }
+      }
+      
+      backLink.href = lastPath;
+    } catch (err) {}
+  });
+</script>
+
+<style is:global>
+  .immersion-read-container {
+    max-width: 800px;
+    margin: 0.5rem auto 5rem auto;
+    padding: 0 2rem;
+  }
+  .post-article-body { 
+    flex-grow: 1;
+    min-width: 0;
+  }
+  .post-header { 
+    margin-bottom: 3.5rem; 
+    text-align: left; 
+    padding-top: 1rem;
+  }
+  .post-meta { 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+    font-weight: 700; 
+    font-size: 0.95rem; 
+    color: #888; 
+    margin-bottom: 0.8rem; 
+  }
+  .post-category { color: #b85c4d; text-transform: uppercase; letter-spacing: 2px; }
+  .meta-dot { opacity: 0.3; }
+  .post-main-title {
+    font-size: clamp(2.4rem, 6vw, 3.4rem);
+    font-weight: 900;
+    line-height: 1.2;
+    margin: 0 0 1.5rem 0;
+    color: #2d2d2d;
+    letter-spacing: -0.02em;
+  }
+  .inline-tag { 
+    font-size: 0.9rem; 
+    color: #b85c4d !important; 
+    text-decoration: none !important; 
+    margin-right: 12px;
+  }
+  .accent-divider {
+    height: 3px;                     
+    background: #888;   
+    margin-top: 2.5rem;
+    opacity: 0.2;
+    width: 100%;
+  }
+  .markdown-content {
+    line-height: 1.8;
+    font-size: 1.2rem;
+    color: #333;
+    text-autospace: ideograph-alpha;
+  }
+  .markdown-content > * + * { margin-top: 2.2rem; }
+  .markdown-content h2 { margin-top: 5rem !important; font-size: 1.8rem; font-weight: 800; color: #2d2d2d; }
+  .markdown-content h3 { margin-top: 3.5rem !important; font-size: 1.5rem; font-weight: 700; color: #333; }
+  .markdown-content h4 { margin-top: 2.5rem !important; font-size: 1.3rem; font-weight: 700; }
+  .markdown-content h2 + *, .markdown-content h3 + *, .markdown-content h4 + * { margin-top: 0.8rem !important; }
+  .markdown-content pre { padding: 1.5rem !important; border-radius: 12px !important; box-shadow: inset 0 0 10px rgba(0,0,0,0.1); }
+  .markdown-content ul, .markdown-content ol { padding-left: 1.8rem; }
+  .markdown-content li { margin-bottom: 0.5rem; }
+  .markdown-content li + li { margin-top: 0.3rem; }
+  .markdown-content blockquote {
+    padding: 1rem 2rem; border-left: 4px solid #ff999a; background: rgba(255, 153, 154, 0.05); font-style: italic;
+  }
+  .markdown-content table {
+    width: 100%; border-collapse: collapse !important; border-spacing: 0 !important; margin: 2rem 0; font-size: 1rem; border-radius: 0; overflow-x: auto; box-shadow: 0 0 20px rgba(0, 0, 0, 0.03); table-layout: auto; display: block !important; -webkit-overflow-scrolling: touch;
+  }
+  .markdown-content th { background-color: #ff999a; color: white; font-weight: 700; padding: 12px 15px; text-align: left; vertical-align: middle !important; border: 1px solid rgba(255,153,154,0.5); white-space: nowrap; }
+  .markdown-content td { padding: 12px 15px; border-bottom: 1px solid #eee; border-left: 1px solid #f0f0f0; vertical-align: middle !important; word-break: break-word; }
+  .markdown-content td:first-child, .markdown-content th:first-child { border-left: none; }
+  .markdown-content tr:nth-child(even) { background-color: rgba(255, 153, 154, 0.03); }
+  .markdown-content tr:hover { background-color: rgba(255, 153, 154, 0.07); }
+  @media (max-width: 768px) {
+    .markdown-content table { display: block !important; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+  }
+  .markdown-content .task-list-item { list-style-type: none; padding-left: 0; }
+  .markdown-content input[type="checkbox"] { margin-right: 10px; accent-color: #ff999a; transform: scale(1.2); vertical-align: middle; }
+  .markdown-content div[data-directive] { padding: 1.2rem 1.5rem; border-radius: 12px; margin: 2rem 0; position: relative; border-left: 5px solid; }
+  .markdown-content div[data-directive="tip"] { background: #f0fdf4; border-color: #22c55e; color: #166534; }
+  .markdown-content div[data-directive="tip"]::before { content: '💡 '; font-weight: bold; margin-right: 8px; }
+  .markdown-content div[data-directive="warning"] { background: #fffbeb; border-color: #f59e0b; color: #92400e; }
+  .markdown-content div[data-directive="warning"]::before { content: '⚠️ '; font-weight: bold; margin-right: 8px; }
+  .markdown-content div[data-directive="danger"] { background: #fef2f2; border-color: #ef4444; color: #991b1b; }
+  .markdown-content div[data-directive="danger"]::before { content: '🚫 '; font-weight: bold; margin-right: 8px; }
+  .markdown-content div[data-directive="note"] { background: #eff6ff; border-color: #3b82f6; color: #1e40af; }
+  .markdown-content div[data-directive="note"]::before { content: '📝 '; font-weight: bold; margin-right: 8px; }
+  .markdown-content img { max-width: 100%; height: auto; display: block; margin: 2.5rem auto; border-radius: 16px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); }
+  .footer-hr { height: 1px; background: #888; margin: 4.5rem 0 2.5rem 0; opacity: 0.1; }
+  .back-link { display: inline-flex; align-items: center; color: #b85c4d !important; font-weight: 800; font-size: 1.1rem; text-decoration: none !important; }
+</style>

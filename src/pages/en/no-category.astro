@@ -1,0 +1,96 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { useTranslations } from "../../i18n/utils";
+
+const lang = 'en';
+const t = useTranslations(lang);
+---
+
+<BaseLayout title={t('noCategory.title')}>
+  <div class="no-category-container">
+    <div class="glass-card error-card">
+      <div class="error-icon">?</div>
+      <h1>No Related Content Yet</h1>
+      <p>Sorry, there are no posts for this category or tag in this language.</p>
+      <div class="redirect-info">
+        <span class="spinner"></span>
+        <span>Redirecting you to all posts...</span>
+      </div>
+      <a href="/en/posts" class="manual-link">Click here to redirect now</a>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  // Redirect after 3 seconds
+  setTimeout(() => {
+    window.location.href = "/en/posts";
+  }, 3000);
+</script>
+
+<style>
+  .no-category-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+    padding: 2rem;
+  }
+  .error-card {
+    max-width: 500px;
+    width: 100%;
+    padding: 3rem;
+    text-align: center;
+    border-radius: 20px;
+  }
+  .error-icon {
+    font-size: 4rem;
+    font-weight: 900;
+    color: var(--primary-red);
+    margin-bottom: 1.5rem;
+    opacity: 0.2;
+  }
+  h1 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    color: #2d2d2d;
+  }
+  p {
+    color: #666;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+  }
+  .redirect-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: #888;
+    font-size: 0.95rem;
+  }
+  .spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #eee;
+    border-top: 2px solid var(--primary-red);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  .manual-link {
+    display: inline-block;
+    margin-top: 2rem;
+    color: var(--primary-red);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.9rem;
+    border-bottom: 2px solid transparent;
+    transition: 0.3s;
+  }
+  .manual-link:hover {
+    border-color: var(--primary-red);
+  }
+</style>

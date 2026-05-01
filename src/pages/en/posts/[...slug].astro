@@ -1,0 +1,23 @@
+---
+/* src/pages/en/posts/[...slug].astro */
+import { getCollection, render } from "astro:content";
+import MarkdownPostLayout from "../../../layouts/MarkdownPostLayout.astro";
+
+// 靜態模式：build 時產生所有英文文章的靜態 HTML
+export async function getStaticPaths() {
+  const blogEntries = await getCollection("blog", ({ id }) => {
+    return id.startsWith("en/");
+  });
+  return blogEntries.map((entry) => ({
+    params: { slug: entry.id.replace(/^en\//, "").replace(/\.mdx?$/, "") },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content, headings } = await render(entry);
+---
+
+<MarkdownPostLayout frontmatter={entry.data} headings={headings}>
+  <Content />
+</MarkdownPostLayout>

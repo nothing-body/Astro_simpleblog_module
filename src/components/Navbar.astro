@@ -1,0 +1,303 @@
+---
+import { getLangFromUrl, useTranslations, useTranslatedPath, getDynamicCategoryMapping } from '../i18n/utils';
+import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
+import logoImg from '../assets/images/logo.webp';
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+const translatePath = useTranslatedPath(lang);
+
+// 取得動態分類對應表
+const categoryMapping = await getDynamicCategoryMapping();
+
+// 預先取得所有文章以進行語系存在檢查
+const allPosts = await getCollection('blog');
+const zhPosts = allPosts.filter(p => p.id.startsWith('zh-tw/'));
+const enPosts = allPosts.filter(p => p.id.startsWith('en/'));
+
+const getTargetLocalePath = (targetLang: string) => {
+  const parts = Astro.url.pathname.split('/').filter(Boolean);
+  
+  // 除掉當前語系前綴（如果是 en）
+  if (parts[0] === 'en') parts.shift();
+  
+  const targetCollection = targetLang === 'en' ? enPosts : zhPosts;
+
+  // 如果是在分類頁
+  if (parts[0] === 'categories' && parts[1]) {
+    const currentCat = decodeURIComponent(parts[1]);
+    const targetCat = categoryMapping[currentCat];
+    
+    if (targetCat) {
+      // 檢查對目標語系是否真的有該分類的文章
+      const hasPosts = targetCollection.some(p => p.data.category === targetCat);
+      if (hasPosts) {
+        const basePath = `/categories/${targetCat}/1`;
+        return targetLang === 'en' ? `/en${basePath}` : basePath;
+      }
+    }
+    // 無對應分類或目標語系無相關文章，跳轉到「無此分類」提示頁面
+    const noCatPath = `/no-category`;
+    return targetLang === 'en' ? `/en${noCatPath}` : noCatPath;
+  }
+
+  // 如果是在標籤頁
+  if (parts[0] === 'tags' && parts[1]) {
+    const currentTag = decodeURIComponent(parts[1]);
+    // 標籤通常不翻譯，直接檢查目標語系是否有此標籤
+    const hasPosts = targetCollection.some(p => p.data.tags.includes(currentTag));
+    if (hasPosts) {
+      const basePath = `/tags/${currentTag}/1`;
+      return targetLang === 'en' ? `/en${basePath}` : basePath;
+    }
+    // 無此標籤，跳轉到「無此標籤」提示頁面
+    const noCatPath = `/no-category`;
+    return targetLang === 'en' ? `/en${noCatPath}` : noCatPath;
+  }
+
+  // 其他頁面（首頁、文章列表、關於）
+  const basePath = parts.length === 0 ? '/' : '/' + parts.join('/');
+  return targetLang === 'en' ? (basePath === '/' ? '/en' : `/en${basePath}`) : basePath;
+};
+---
+<nav class="nav-header" id="navbar">
+  <div class="nav-container">
+    <a href={translatePath('/')} class="nav-logo">
+      <Image src={logoImg} alt="夈似 Logo" class="site-logo-img" width={40} height={40} loading="eager" /> 夈似
+    </a>
+    
+    <div class="nav-right">
+      <div class="nav-links">
+        <a href={translatePath('/')} class="nav-item">{t('nav.home')}</a>
+        <a href={translatePath('/posts')} class="nav-item">{t('nav.posts')}</a>
+        <a href={translatePath('/about')} class="nav-item">{t('nav.about')}</a>
+      </div>
+
+      <div class="lang-dropdown">
+        <button class="lang-trigger" aria-label="Select Language" type="button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="globe-icon"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+        </button>
+
+        <div class="dropdown-content">
+          <a href={getTargetLocalePath('zh-tw')} class={lang === 'zh-tw' ? 'active' : ''}>繁體中文</a>
+          <a href={getTargetLocalePath('en')} class={lang === 'en' ? 'active' : ''}>English</a>
+        </div>
+      </div>
+
+      <button class="mobile-toggle" id="mobile-toggle" aria-label="Toggle Menu">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="menu-icon"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="close-icon"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobile-menu">
+  <div class="mobile-links">
+    <a href={translatePath('/')} class="mobile-item">{t('nav.home')}</a>
+    <a href={translatePath('/posts')} class="mobile-item">{t('nav.posts')}</a>
+    <a href={translatePath('/about')} class="mobile-item">{t('nav.about')}</a>
+  </div>
+</div>
+
+<script>
+  let lastScrollTop = 0;
+  const navbar = document.getElementById('navbar');
+
+  const toggleBtn = document.getElementById('mobile-toggle');
+  const mobileMenu = document.getElementById('mobile-menu');
+
+  // 捲動隱藏/顯示導覽列
+  window.addEventListener('scroll', () => {
+    if (!navbar || (mobileMenu && mobileMenu.classList.contains('active'))) return;
+    let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    if (scrollTop > lastScrollTop && scrollTop > 70) {
+      navbar.style.transform = 'translateY(-100%)';
+    } else {
+      navbar.style.transform = 'translateY(0)';
+    }
+    lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+  }, { passive: true });
+
+  // 手機版選單切換
+  if (toggleBtn && mobileMenu) {
+    toggleBtn.addEventListener('click', () => {
+      const isActive = mobileMenu.classList.toggle('active');
+      toggleBtn.classList.toggle('active');
+      document.body.style.overflow = isActive ? 'hidden' : '';
+    });
+
+    // 手機選單內連結被點擊時，清除 overflow: hidden（防止跳頁後殘留）
+    mobileMenu.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement | null;
+      if (target && target.tagName === 'A') {
+        mobileMenu.classList.remove('active');
+        toggleBtn.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    });
+  }
+
+  // 修復 UX Bug：用戶點擊上一頁後返回，或 Astro prefetch 切換頁面時，
+  // body overflow 和行動選單 active 狀態可能殘留
+  // pagehide 在離開頁面時立即觸發，確保所有狀態被清除
+  function closeAllMenus() {
+    document.body.style.overflow = '';
+    if (mobileMenu) mobileMenu.classList.remove('active');
+    if (toggleBtn) toggleBtn.classList.remove('active');
+    if (dropdownContent) {
+      dropdownContent.classList.remove('open');
+      dropdownContent.setAttribute('aria-hidden', 'true');
+    }
+  }
+
+  window.addEventListener('pagehide', closeAllMenus);
+
+  // 頁面初始化時確保選單狀態為關閉（防止瀏覽器快取保留舊的 DOM 狀態）
+  closeAllMenus();
+
+  // 語言切換下拉選單：支援手機 Click（hover 在觸控裝置無效）
+  const langDropdown = document.querySelector('.lang-dropdown');
+  const dropdownContent = document.querySelector('.dropdown-content');
+  if (langDropdown && dropdownContent) {
+    langDropdown.addEventListener('click', (e) => {
+      // 如果點擊的是選單內的連結，讓瀏覽器自行導航，不要 toggle 選單
+      const target = e.target as HTMLElement | null;
+      if (target && target.tagName === 'A') return;
+
+      e.stopPropagation();
+      const isOpen = dropdownContent.classList.toggle('open');
+      dropdownContent.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+    });
+  // 點擊其他區域關閉語言下拉選單（具名 function 方便在 pagehide 時移除，防止記憶體洩漏）
+    function handleDocumentClick() {
+      dropdownContent!.classList.remove('open');
+      dropdownContent!.setAttribute('aria-hidden', 'true');
+    }
+    document.addEventListener('click', handleDocumentClick);
+
+    // 頁面卸載時移除全域監聽器，避免 Astro SPA 導航後累積多個監聽器
+    window.addEventListener('pagehide', function() {
+      document.removeEventListener('click', handleDocumentClick);
+    }, { once: true });
+  }
+
+
+</script>
+
+<style is:global>
+  .nav-header {
+    height: 70px;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 2000;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .nav-container { max-width: 1200px; margin: 0 auto; width: 100%; padding: 0 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+  .nav-logo { font-size: 1.25rem; font-weight: 900; color: #2d2d2d; text-decoration: none; display: flex; align-items: center; gap: 8px; }
+  .site-logo-img { height: 38px; width: auto; object-fit: contain; }
+  .nav-right { display: flex; align-items: center; gap: 1rem; }
+  .nav-links { display: flex; gap: 2rem; }
+  .nav-item { text-decoration: none; color: #555; font-size: 0.95rem; font-weight: 600; transition: color 0.2s; }
+  .nav-item:hover { color: #b85c4d; }
+
+  .lang-dropdown { position: relative; display: flex; align-items: center; padding-left: 1rem; border-left: 1px solid rgba(0,0,0,0.1); }
+  .lang-trigger { background: none; border: none; cursor: pointer; color: #555; padding: 4px; display: flex; align-items: center; transition: color 0.2s; }
+  .lang-trigger:hover { color: #b85c4d; }
+
+  
+  .dropdown-content {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    min-width: 120px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    border-radius: 12px;
+    padding: 0.5rem;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(0,0,0,0.05);
+  }
+
+  .lang-dropdown:hover .dropdown-content,
+  .dropdown-content.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(5px);
+  }
+
+  .dropdown-content a {
+    display: block;
+    padding: 0.6rem 1rem;
+    text-decoration: none;
+    color: #555;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: 0.2s;
+    white-space: nowrap;
+  }
+
+  .dropdown-content a:hover { background: rgba(184, 92, 77, 0.05); color: #b85c4d; }
+  .dropdown-content a.active { color: #b85c4d; background: rgba(184, 92, 77, 0.05); }
+
+  /* 手機版選單按鈕 */
+  .mobile-toggle {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #2d2d2d;
+    padding: 4px;
+    z-index: 2001;
+  }
+  .mobile-toggle .close-icon { display: none; }
+  .mobile-toggle.active .menu-icon { display: none; }
+  .mobile-toggle.active .close-icon { display: block; }
+
+  /* 手機選單容器 */
+  .mobile-menu {
+    position: fixed;
+    top: 70px; left: 0; right: 0; bottom: 0;
+    background: white;
+    z-index: 1999;
+    padding: 2rem;
+    /* 用 visibility + opacity 取代 display:none，才能讓 CSS transition 正常作用 */
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+  }
+  .mobile-menu.active {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+  .mobile-links { display: flex; flex-direction: column; gap: 2rem; }
+  .mobile-item {
+    text-decoration: none;
+    color: #2d2d2d;
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+
+  /* 響應式斷點 */
+  @media (max-width: 768px) {
+    .nav-links { display: none; }
+    .mobile-toggle { display: block; }
+    .lang-dropdown { border-left: none; }
+  }
+</style>
+

@@ -1,0 +1,61 @@
+---
+/* src/pages/en/tags/[tag]/[page].astro */
+import { getCollection } from 'astro:content';
+import BaseLayout from "../../../../layouts/BaseLayout.astro";
+import Sidebar from "../../../../components/Sidebar.astro";
+import PostCard from "../../../../components/PostCard.astro";
+import Pagination from "../../../../components/Pagination.astro";
+import type { PaginateFunction } from 'astro';
+import { useTranslatedPath } from "../../../../i18n/utils";
+
+const translatePath = useTranslatedPath('en');
+
+// 靜態模式：build 時為每個英文標籤的每一頁產生靜態 HTML
+export async function getStaticPaths({ paginate }: { paginate: PaginateFunction }) {
+  const allPosts = await getCollection('blog', ({ id }) => id.startsWith('en/'));
+  const tags = [...new Set(allPosts.map(p => p.data.tags).flat())];
+
+  return tags.flatMap((t) => {
+    const filtered = allPosts
+      .filter(p => p.data.tags.includes(t))
+      .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+    
+    return paginate(filtered, { 
+      params: { tag: t.toString() }, 
+      pageSize: 10 
+    });
+  });
+}
+
+const { page } = Astro.props;
+const { tag } = Astro.params;
+const allPosts = await getCollection('blog', ({ id }) => id.startsWith('en/'));
+
+const totalPages = page.lastPage || 1;
+const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
+---
+
+<BaseLayout title={`Tag: #${tag} - Page ${page.currentPage}`}>
+  <div class="page-container">
+    <div class="content-wrapper">
+        <Sidebar allPosts={allPosts} lang="en" activeTag={tag} />
+
+      <main class="main-content">
+        <h2 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 0.6rem;">Tag: #{tag} (Page {page.currentPage})</h2>
+        <hr class="page-divider" />
+        
+        {page.data.map((post: any) => <PostCard post={post} lang="en" />)}
+
+        <Pagination 
+          currentPage={page.currentPage} 
+          totalPages={totalPages} 
+          prevUrl={page.url.prev} 
+          nextUrl={page.url.next} 
+          getPageUrl={(num) => `/en/tags/${tag}/${num}`} 
+        />
+      </main>
+    </div>
+  </div>
+</BaseLayout>
+
+

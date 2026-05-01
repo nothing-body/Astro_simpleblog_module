@@ -1,0 +1,42 @@
+﻿---
+/* src/pages/en/contact.astro */
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import AboutSidebar from "../../components/AboutSidebar.astro";
+import { useTranslations } from "../../i18n/utils";
+
+const t = useTranslations('en');
+const currentPath = Astro.url.pathname;
+const contactEmail = import.meta.env.PUBLIC_CONTACT_EMAIL || 'robo@contact.ouoxo.com';
+const siteUrl = Astro.site ? Astro.site.toString().replace(/\/$/, '') : 'https://blog.ouoxo.com';
+const pageUrl = new URL(currentPath, siteUrl).href;
+---
+
+<BaseLayout title="Contact">
+  <script type="application/ld+json" set:html={`
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Contact",
+      "url": ${JSON.stringify(pageUrl)},
+      "description": "How to contact the author.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "夈似"
+      }
+    }
+  `} />
+  <div class="page-container" style="margin-top: 2rem;">
+    <div class="content-wrapper">
+      <AboutSidebar currentPath={currentPath} lang="en" />
+      <main class="main-content">
+        <article class="glass-card post-article-body" style="padding: 2.5rem;">
+          <div class="markdown-content about-enhanced">
+            <h2>Contact Us</h2>
+            <p>If you have any questions, suggestions, or copyright issues regarding the content of this site, please feel free to contact me through the following methods.</p>
+            <p>Email: <a href={`mailto:${contactEmail}`}>{contactEmail}</a></p>
+          </div>
+        </article>
+      </main>
+    </div>
+  </div>
+</BaseLayout>

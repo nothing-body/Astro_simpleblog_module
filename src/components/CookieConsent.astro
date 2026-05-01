@@ -1,0 +1,176 @@
+---
+/* src/components/CookieConsent.astro */
+export interface Props {
+  htmlLang: "en" | "zh-TW";
+}
+
+const { htmlLang } = Astro.props;
+---
+
+<div
+  id="privacy-panel"
+  class="privacy-panel"
+  aria-hidden="true"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="privacy-panel-title"
+>
+  <div class="privacy-panel-content">
+    <h3 id="privacy-panel-title">{htmlLang === 'en' ? 'Cookie Settings' : 'Cookie 設定'}</h3>
+    <p>
+      {htmlLang === 'en' ? (
+        <>
+          For more details, please visit our <a href="/en/privacy" style="color: #b85c4d; text-decoration: underline;" rel="noopener noreferrer">Privacy Policy</a>.
+        </>
+      ) : (
+        <>
+          想了解更多隱私政策相關詳細資訊，請前往閱讀我們的<a href="/privacy" style="color: #b85c4d; text-decoration: underline;" rel="noopener noreferrer">隱私政策</a>。
+        </>
+      )}
+    </p>
+
+    <h4>{htmlLang === 'en' ? 'Cookie / Local Storage Settings' : 'Cookie / 本機儲存設定'}</h4>
+    <label class="privacy-toggle">
+      <input type="checkbox" id="toggle-remember-timezone" />
+      <span>{htmlLang === 'en' ? 'Allow this site to remember my selected timezone' : '允許本站記住我選擇的時區設定'}</span>
+    </label>
+    <label class="privacy-toggle">
+      <input type="checkbox" id="toggle-enable-analytics" />
+      <span>{htmlLang === 'en' ? 'Allow Google Analytics (GA4) to collect browsing data' : '允許 Google Analytics (G4A) 收集瀏覽數據進行網站分析'}</span>
+    </label>
+
+    <div class="privacy-btn-group">
+      <button type="button" class="privacy-save-btn">{htmlLang === 'en' ? 'Save Settings' : '儲存設定'}</button>
+      <button type="button" class="privacy-close-btn">{htmlLang === 'en' ? 'Close' : '關閉'}</button>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    // toggleBtn 在 Footer 裡，這裡用事件來接收開啟指令
+    var panel = document.getElementById("privacy-panel");
+    if (!panel) return;
+
+    var timezoneCheckbox = document.getElementById("toggle-remember-timezone");
+    var analyticsCheckbox = document.getElementById("toggle-enable-analytics");
+    var closeBtn = panel.querySelector(".privacy-close-btn");
+    var saveBtn = panel.querySelector(".privacy-save-btn");
+
+    function getSettings() {
+      return window.__privacySettings || { rememberTimezone: true, enableAnalytics: true, hasSetCookies: false };
+    }
+
+    function syncFromState() {
+      var s = getSettings();
+      if (timezoneCheckbox) timezoneCheckbox.checked = s.rememberTimezone !== false;
+      if (analyticsCheckbox) {
+        analyticsCheckbox.checked = s.hasSetCookies ? (s.enableAnalytics !== false) : true;
+      }
+    }
+
+    function openPanel() {
+      panel.setAttribute("aria-hidden", "false");
+      panel.classList.add("visible");
+      syncFromState();
+      if (saveBtn) saveBtn.focus();
+    }
+
+    function closePanel() {
+      panel.setAttribute("aria-hidden", "true");
+      panel.classList.remove("visible");
+      // 嘗試將 focus 往回 Footer 的觸發按鈕（若存在）
+      var trigger = document.getElementById("privacy-toggle");
+      if (trigger) trigger.focus();
+    }
+
+    // 監聽來自 Footer 的開啟事件
+    document.addEventListener("open-privacy-panel", openPanel);
+
+    panel.addEventListener("click", function (event) {
+      var target = event.target;
+      if (target === panel || (target && target.classList && target.classList.contains("privacy-close-btn"))) {
+        closePanel();
+      }
+    });
+
+    if (saveBtn) {
+      saveBtn.addEventListener("click", function () {
+        if (typeof window.updatePrivacySettings === "function") {
+          var updateData = {
+            hasSetCookies: true,
+            rememberTimezone: !!(timezoneCheckbox && timezoneCheckbox.checked),
+            enableAnalytics: !!(analyticsCheckbox && analyticsCheckbox.checked)
+          };
+          window.updatePrivacySettings(updateData);
+          
+          if (!updateData.rememberTimezone) {
+            try { localStorage.removeItem('selectedTimezone'); } catch (e) {}
+          }
+          
+          window.location.reload();
+        }
+      });
+    }
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && panel.classList.contains("visible")) {
+        closePanel();
+      }
+    });
+
+    setTimeout(function() {
+      var s = getSettings();
+      if (!s.hasSetCookies) {
+        openPanel();
+      }
+    }, 500);
+  })();
+</script>
+
+<style is:global>
+  .privacy-panel {
+    position: fixed; inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 3000;
+  }
+  .privacy-panel.visible { opacity: 1; pointer-events: auto; }
+  .privacy-panel-content {
+    background: #ffffff; border-radius: 16px; padding: 1.8rem 2rem;
+    max-width: 520px; width: 90%; box-shadow: 0 18px 45px rgba(0, 0, 0, 0.16);
+    font-size: 0.95rem; line-height: 1.7;
+    color: #444; 
+  }
+  .privacy-panel-content h3 {
+    margin-top: 0;
+    color: #222;
+  }
+  .privacy-panel-content h4 {
+    margin-top: 1.5rem;
+    font-size: 1rem;
+    color: #222;
+  }
+  .privacy-btn-group {
+    display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap;
+  }
+  .privacy-save-btn {
+    padding: 0.4rem 1.2rem; border-radius: 999px; border: none;
+    background: #b85c4d; color: #fff; font-weight: 600; cursor: pointer; transition: all 0.3s;
+  }
+  .privacy-save-btn:hover { background: #a04b3d; transform: translateY(-2px); }
+  .privacy-close-btn {
+    padding: 0.4rem 1.2rem; border-radius: 999px; border: 1px solid #ddd;
+    background: #fff; color: #555; font-weight: 600; cursor: pointer; transition: all 0.3s;
+  }
+  .privacy-close-btn:hover { background: #f0f0f0; transform: translateY(-2px); }
+  .privacy-toggle {
+    display: flex; align-items: center; gap: 8px; margin-top: 12px; margin-bottom: 8px;
+    cursor: pointer;
+  }
+  .privacy-toggle input[type="checkbox"] {
+    width: 16px; height: 16px; cursor: pointer; accent-color: #b85c4d;
+  }
+</style>

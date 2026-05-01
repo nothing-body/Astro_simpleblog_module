@@ -1,0 +1,17 @@
+---
+/* src/pages/tags/[tag].astro */
+import { getCollection } from 'astro:content';
+
+// 靜態模式：必須用 getStaticPaths 預先列出所有標籤，才能生成對應的跳轉頁
+export async function getStaticPaths() {
+  const allPosts = await getCollection('blog', ({ id }) => id.startsWith('zh-tw/'));
+  const tags = [...new Set(allPosts.map(p => p.data.tags).flat())];
+  
+  return tags.map(tag => ({
+    params: { tag: tag.toString() }
+  }));
+}
+
+const { tag } = Astro.params;
+---
+<meta http-equiv="refresh" content={`0;url=/tags/${tag}/1`} />

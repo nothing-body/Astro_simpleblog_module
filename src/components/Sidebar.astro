@@ -1,0 +1,84 @@
+---
+/* src/components/Sidebar.astro */
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  allPosts: CollectionEntry<'blog'>[];
+  lang?: 'zh-tw' | 'en';
+  activeCategory?: string; // 目前選取的分類（用於高亮顯示）
+  activeTag?: string;       // 目前選取的標籤（用於高亮顯示）
+}
+
+const { allPosts, lang = 'zh-tw', activeCategory, activeTag } = Astro.props;
+
+// 側邊欄所需的分類與標籤資料
+const categoriesList = [...new Set(allPosts.map((post) => post.data.category).filter(Boolean))].sort();
+const uniqueTags = [...new Set(allPosts.map((post) => post.data.tags).flat())].sort();
+
+// 依語系決定路徑前綴與標籤文字
+const pathPrefix = lang === 'en' ? '/en' : '';
+const categoryLabel = lang === 'en' ? 'Categories' : '文章分類';
+const tagLabel = lang === 'en' ? 'Tags' : '標籤';
+---
+
+<aside class="sidebar">
+  <!-- 分類列表 -->
+  <div class="glass-card sidebar-widget">
+    <h3 class="widget-title">{categoryLabel}</h3>
+    <ul class="category-list">
+      {categoriesList.map((cat: string) => (
+        <li>
+          <a
+            href={`${pathPrefix}/categories/${cat}/1`}
+            class:list={["cat-link", { "cat-link--active": cat === activeCategory }]}
+          >
+            <span>{cat}</span>
+            <span>{allPosts.filter(p => p.data.category === cat).length}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <!-- 標籤列表 -->
+  <div class="glass-card sidebar-widget">
+    <h3 class="widget-title">{tagLabel}</h3>
+    <div class="tag-cloud">
+      {uniqueTags.map((tag: string) => (
+        <a
+          href={`${pathPrefix}/tags/${tag}/1`}
+          class:list={["tag-box", { "tag-box--active": tag === activeTag }]}
+        >
+          #{tag}
+        </a>
+      ))}
+    </div>
+  </div>
+
+</aside>
+
+<style is:global>
+  /* 側邊欄 widget 間距 */
+  .sidebar-widget {
+    padding: 1.2rem;
+    margin-bottom: 1.5rem;
+  }
+  .sidebar-widget:last-child {
+    margin-bottom: 0;
+  }
+  /* 標籤雲容器 */
+  .tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  /* 分類連結：活躍狀態 */
+  .cat-link--active {
+    color: var(--primary-red) !important;
+    font-weight: 800 !important;
+  }
+  /* 標籤按鈕：活躍狀態 */
+  .tag-box--active {
+    background: #b85c4d !important;
+    color: white !important;
+  }
+</style>

@@ -1,0 +1,43 @@
+﻿---
+/* src/pages/contact.astro */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import AboutSidebar from "../components/AboutSidebar.astro";
+import { useTranslations } from "../i18n/utils";
+
+const t = useTranslations('zh-tw');
+const currentPath = Astro.url.pathname;
+// allow overriding contact email via environment
+const contactEmail = import.meta.env.PUBLIC_CONTACT_EMAIL || 'robo@contact.ouoxo.com';
+const siteUrl = Astro.site ? Astro.site.toString().replace(/\/$/, '') : 'https://blog.ouoxo.com';
+const pageUrl = new URL(currentPath, siteUrl).href;
+---
+
+<BaseLayout title="聯絡我">
+  <script type="application/ld+json" set:html={`
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "聯絡我",
+      "url": ${JSON.stringify(pageUrl)},
+      "description": "聯絡本站作者的方式。",
+      "publisher": {
+        "@type": "Organization",
+        "name": "夈似"
+      }
+    }
+  `} />
+  <div class="page-container" style="margin-top: 2rem;">
+    <div class="content-wrapper">
+      <AboutSidebar currentPath={currentPath} lang="zh-tw" />
+      <main class="main-content">
+        <article class="glass-card post-article-body" style="padding: 2.5rem;">
+          <div class="markdown-content about-enhanced">
+            <h2>聯絡我們</h2>
+            <p>若您對本站內容有任何疑問、建議或版權相關問題，歡迎透過以下方式與我聯繫。</p>
+            <p>Email: <a href={`mailto:${contactEmail}`}>{contactEmail}</a></p>
+          </div>
+        </article>
+      </main>
+    </div>
+  </div>
+</BaseLayout>

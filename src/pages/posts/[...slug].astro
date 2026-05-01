@@ -1,0 +1,23 @@
+---
+/* src/pages/posts/[...slug].astro */
+import { getCollection, render } from "astro:content";
+import MarkdownPostLayout from "../../layouts/MarkdownPostLayout.astro";
+
+// 靜態模式：build 時產生所有繁中文章的靜態 HTML
+export async function getStaticPaths() {
+  const blogEntries = await getCollection("blog", ({ id }) => {
+    return id.startsWith("zh-tw/");
+  });
+  return blogEntries.map((entry) => ({
+    params: { slug: entry.id.replace(/^zh-tw\//, "").replace(/\.mdx?$/, "") },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content, headings } = await render(entry);
+---
+
+<MarkdownPostLayout frontmatter={entry.data} headings={headings}>
+  <Content />
+</MarkdownPostLayout>

@@ -1,0 +1,84 @@
+---
+/* src/components/Pagination.astro */
+export interface Props {
+  currentPage: number;
+  totalPages: number;
+  prevUrl?: string;
+  nextUrl?: string;
+  getPageUrl: (pageNum: number) => string;
+}
+
+const { currentPage, totalPages, prevUrl, nextUrl, getPageUrl } = Astro.props;
+
+// Generate array of page numbers safely
+const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
+---
+
+<nav class="pagination" aria-label="Pagination">
+  {prevUrl ? (
+    <a href={prevUrl} class="page-btn" aria-label="Previous Page">&larr;</a>
+  ) : (
+    <span class="page-btn disabled" aria-disabled="true">&larr;</span>
+  )}
+
+  {pageNumbers.map((num) => (
+    <a 
+      href={getPageUrl(num)} 
+      class={`page-link ${currentPage === num ? 'active' : ''}`}
+      aria-current={currentPage === num ? 'page' : undefined}
+    >
+      {num}
+    </a>
+  ))}
+
+  {nextUrl ? (
+    <a href={nextUrl} class="page-btn" aria-label="Next Page">&rarr;</a>
+  ) : (
+    <span class="page-btn disabled" aria-disabled="true">&rarr;</span>
+  )}
+</nav>
+
+<style>
+  /* Scoped pagination styling to prevent cross-contamination */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.8rem;
+    margin-top: 3rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+  
+  .page-btn, .page-link {
+    padding: 0.5rem 1rem;
+    background: #fff;
+    border-radius: 8px;
+    color: #2d2d2d;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+  }
+  
+  .page-link.active {
+    background-color: #b85c4d;
+    color: #fff;
+    border-color: #b85c4d;
+  }
+  
+  .page-link:hover:not(.active), .page-btn:hover:not(.disabled) {
+    background: #fdfdfd;
+    border-color: #ddd;
+    transform: translateY(-2px);
+  }
+  
+  .page-btn.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    background: transparent;
+    box-shadow: none;
+  }
+</style>

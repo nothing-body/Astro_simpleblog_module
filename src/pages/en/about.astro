@@ -1,0 +1,59 @@
+---
+/* src/pages/en/about.astro */
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import AboutSidebar from "../../components/AboutSidebar.astro";
+import { useTranslations } from "../../i18n/utils";
+
+const t = useTranslations('en');
+const currentPath = Astro.url.pathname;
+const siteUrl = Astro.site ? Astro.site.toString().replace(/\/$/, '') : 'https://blog.ouoxo.com';
+const pageUrl = new URL(currentPath, siteUrl).href;
+---
+
+<BaseLayout title="About This Site">
+  <script type="application/ld+json" set:html={`
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "About This Site",
+      "url": ${JSON.stringify(pageUrl)},
+      "description": "About the author and this website.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "夈似"
+      }
+    }
+  `} />
+  <div class="page-container" style="margin-top: 2rem;">
+    <div class="content-wrapper">
+      <AboutSidebar currentPath={currentPath} lang="en" />
+      <main class="main-content">
+        <article class="glass-card post-article-body" style="padding: 2.5rem;">
+      <div class="markdown-content about-enhanced">
+        <h2>About This Site</h2>
+        <p>Welcome to my personal blog!<br/>
+        This is not a highly polished professional website, but rather a personal digital space in my online world.</p>
+
+        <h3>Why Did I Build This Website?</h3>
+        <p>This site is built with the <strong>Astro</strong> modern web framework. For me, this is not just a recording space, but a technical practice and memo pad to prevent myself from forgetting operational details.</p>
+        <p>Some of the code on this site was referenced from the <a href="https://github.com/D-Sketon/astro-theme-reimu" target="_blank" rel="noopener noreferrer">astro-theme-reimu</a> project by <a href="https://github.com/D-Sketon" target="_blank" rel="noopener noreferrer">D-Sketon</a>. Many thanks for the great work.</p>
+
+        <h3>What Will You Find Here?</h3>
+        <ul>
+          <li><strong>Software Reviews:</strong> Sharing my impressions and experiences using various software.</li>
+          <li><strong>Interesting Tools:</strong> Recording and sharing interesting and useful tools I've discovered.</li>
+          <li><strong>Life Notes:</strong> Those unexpected inspirations, life trivialities, and personal thoughts.</li>
+        </ul>
+
+        <h3>About the Authenticity of Content</h3>
+        <p>Every article here is my personal note, a product of casual recording and thinking.<br/>
+        Although the content is quite casual, this notebook is first and foremost for my future self to look back on and reference. If it can also be helpful to you who comes here, that is an added bonus.</p>
+
+        <h3>About English Translation</h3>
+        <p>The English articles on this site are translated from the original Chinese texts by AI models. While efforts have been made to maintain accuracy, there may still be awkward phrasing or minor inaccuracies. Thank you for your understanding.</p>
+      </div>
+        </article>
+      </main>
+    </div>
+  </div>
+</BaseLayout>

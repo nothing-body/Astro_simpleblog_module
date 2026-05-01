@@ -1,0 +1,506 @@
+﻿---
+/* src/pages/en/index.astro */
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { useTranslations } from "../../i18n/utils";
+import { Image } from "astro:assets";
+import heroBg from "../../assets/images/hero-bg.webp";
+import { getCollection } from "astro:content";
+import PostCard from "../../components/PostCard.astro";
+
+const t = useTranslations("en");
+
+const allPosts = await getCollection("blog", ({ id }) => id.startsWith("en/"));
+const recentPosts = allPosts
+  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())
+  .slice(0, 3);
+
+// dynamic SEO URLs
+const siteUrl = Astro.site
+  ? Astro.site.toString().replace(/\/$/, "")
+  : "https://blog.ouoxo.com";
+const pageUrl = new URL(Astro.url.pathname, siteUrl).href;
+---
+
+<BaseLayout title={t("welcome.title")}>
+  <script
+    type="application/ld+json"
+    set:html={`
+    {
+      "@context": "https://schema.org",
+      "@type": "Blog",
+      "name": "Yushih",
+      "description": "Personal blog sharing software experiences, interesting tools, daily life, and quick notes about a digital lifestyle",
+      "url": ${JSON.stringify(pageUrl)},
+      "publisher": {
+        "@type": "Person",
+        "@id": ${JSON.stringify(siteUrl)}
+      }
+    }
+  `}
+  />
+  <div class="welcome-container">
+    <Image
+      src={heroBg}
+      alt="Background"
+      class="hero-bg-img"
+      quality="mid"
+      loading="eager"
+      fetchpriority="high"
+    />
+    <div class="hero-content">
+      <div class="hero-integrated-card glass-clock-card">
+        <!-- 時鐘區塊 (Clock) -->
+        <div class="clock-section">
+          <div class="clock-display" id="clock">
+            <div class="date-row" id="date">--/--/----</div>
+            <div class="time-row" id="time">00:00:00</div>
+          </div>
+
+          <div class="timezone-selector">
+            <label for="timezone-select">Select Timezone:</label>
+            <select id="timezone-select">
+              <option value="auto">Auto Detect</option>
+              <!-- 時區選項將由腳本動態添加 -->
+            </select>
+          </div>
+
+          <div id="location-welcome" class="location-welcome"></div>
+        </div>
+
+        <!-- 簡介區塊 (Intro) -->
+        <div class="intro-section">
+          <h1 class="welcome-title intro-title">{t("welcome.title")}</h1>
+          <p
+            style="margin-bottom: 0.8rem; font-size: 1.2rem; line-height: 1.6;"
+          >
+            <strong
+              style="color: var(--primary-red); font-weight: 800; letter-spacing: 1px;"
+              >Welcome to my personal blog!</strong
+            >
+            <span style="font-weight: 600; color: #333;"
+              >This is a digital space for quick notes.</span
+            >
+          </p>
+          <p
+            style="font-weight: 500; font-size: 1.05rem; color: #555; line-height: 1.8;"
+          >
+            Documenting practical software reviews, technical development, VPS
+            server configurations, and daily thoughts.<br />
+            I hope these preserved experiences resonate with and bring value to fellow
+            explorers of the digital world.
+          </p>
+          <nav class="welcome-nav intro-nav">
+            <a href="/en/posts" class="welcome-btn">{t("nav.posts")}</a>
+            <a href="/en/about" class="welcome-btn secondary"
+              >{t("nav.about")}</a
+            >
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-container" style="padding-top: 2rem; padding-bottom: 4rem;">
+    <h2
+      class="widget-title"
+      style="font-size: 1.5rem; margin-bottom: 2rem; justify-content: center; text-align: center;"
+    >
+      Recent Posts
+    </h2>
+    <div class="main-content" style="width: 100%;">
+      <div
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; align-items: stretch;"
+      >
+        {recentPosts.map((post) => <PostCard post={post} lang="en" />)}
+      </div>
+
+      <div style="text-align: center; margin-top: 3rem;">
+        <a href="/en/posts" class="welcome-btn" style="display: inline-block;"
+          >Latest Posts</a
+        >
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script
+  define:vars={{
+    tFrom: t("welcome.from"),
+    tVisitor: t("welcome.visitor"),
+    tFallback: t("welcome.fallback"),
+    tDetecting: t("welcome.detecting"),
+  }}
+>
+  let currentTimezone = "auto"; // 默認自動檢測
+
+  function updateClock() {
+    const now = new Date();
+
+    const timezone = currentTimezone === "auto" ? undefined : currentTimezone;
+
+    const dateOptions = {
+      timeZone: timezone,
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    };
+    const timeOptions = {
+      timeZone: timezone,
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    };
+
+    const dateParts = new Intl.DateTimeFormat(
+      "en-GB",
+      dateOptions,
+    ).formatToParts(now);
+    const timeParts = new Intl.DateTimeFormat(
+      "en-GB",
+      timeOptions,
+    ).formatToParts(now);
+
+    const day = dateParts.find((p) => p.type === "day")?.value;
+    const month = dateParts.find((p) => p.type === "month")?.value;
+    const year = dateParts.find((p) => p.type === "year")?.value;
+    const dateStr = `${day}/${month}/${year}`;
+
+    const hours = timeParts.find((p) => p.type === "hour")?.value;
+    const minutes = timeParts.find((p) => p.type === "minute")?.value;
+    const seconds = timeParts.find((p) => p.type === "second")?.value;
+    const timeStr = `${hours}:${minutes}:${seconds}`;
+
+    const dateEl = document.getElementById("date");
+    const timeEl = document.getElementById("time");
+
+    if (dateEl) dateEl.textContent = dateStr;
+    if (timeEl) timeEl.textContent = timeStr;
+  }
+
+  async function updateLocation() {
+    const welcomeEl = document.getElementById("location-welcome");
+    if (welcomeEl) welcomeEl.textContent = tFallback; // 直接使用fallback，無需外部請求
+  }
+
+  // 以 document.visibilityState 控制計時器，頁面隱藏時暫停，避免無效耗能
+  let clockInterval = null;
+
+  function startClock() {
+    if (clockInterval !== null) return;
+    updateClock();
+    clockInterval = setInterval(updateClock, 1000);
+  }
+
+  function stopClock() {
+    if (clockInterval !== null) {
+      clearInterval(clockInterval);
+      clockInterval = null;
+    }
+  }
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      stopClock();
+    } else {
+      startClock();
+    }
+  });
+
+  startClock();
+
+  // 初始化時區選擇器
+  const timezoneSelect = document.getElementById("timezone-select");
+  if (timezoneSelect) {
+    let timezones = [];
+    try {
+      timezones = Intl.supportedValuesOf("timeZone");
+    } catch (e) {
+      timezones = [
+        "UTC",
+        "Asia/Taipei",
+        "America/New_York",
+        "Europe/London",
+        "Asia/Tokyo",
+        "Asia/Hong_Kong",
+      ];
+    }
+    timezones.forEach((tz) => {
+      const option = document.createElement("option");
+      option.value = tz;
+      option.textContent = tz;
+      timezoneSelect.appendChild(option);
+    });
+
+    // 從localStorage載入上次選擇（僅當用戶允許記住時區時）
+    const savedTimezone = localStorage.getItem("selectedTimezone");
+    if (
+      savedTimezone &&
+      window.__privacySettings &&
+      window.__privacySettings.rememberTimezone
+    ) {
+      currentTimezone = savedTimezone;
+      timezoneSelect.value = savedTimezone;
+    }
+
+    timezoneSelect.addEventListener("change", (e) => {
+      currentTimezone = e.target.value;
+      // 僅當用戶允許時才保存到localStorage
+      if (
+        window.__privacySettings &&
+        window.__privacySettings.rememberTimezone
+      ) {
+        localStorage.setItem("selectedTimezone", currentTimezone);
+      } else {
+        // 如果用戶不允許，清除已保存的設定
+        localStorage.removeItem("selectedTimezone");
+      }
+      updateClock(); // 立即更新時鐘
+    });
+  }
+
+  updateLocation(); // 直接調用，無需隱私檢查
+</script>
+
+<style>
+  .location-welcome {
+    font-size: 1rem;
+    color: #888;
+    margin-bottom: 1rem;
+    font-weight: 500;
+    min-height: 1.5em;
+  }
+  .timezone-selector {
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  .timezone-selector label {
+    font-size: 0.9rem;
+    color: #666;
+    margin-right: 0.5rem;
+  }
+  .timezone-selector select {
+    padding: 0.3rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background: rgba(255, 255, 255, 0.8);
+  }
+  .welcome-container {
+    min-height: 80vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    padding: 4rem 1.5rem;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    max-width: 1100px;
+  }
+
+  .hero-bg-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  .hero-integrated-card {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    width: 100%;
+    text-align: left;
+    padding: 3.5rem;
+    border-top: 4px solid var(--primary-red);
+  }
+
+  .glass-clock-card {
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 30px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+  }
+
+  .clock-section {
+    flex: 4;
+    min-width: 280px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-right: 2.5rem;
+  }
+
+  .intro-section {
+    flex: 5;
+    min-width: 300px;
+    padding-left: 3rem;
+    position: relative;
+  }
+
+  .intro-section::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 60%;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      var(--primary-red),
+      transparent
+    );
+    border-radius: 3px;
+    opacity: 0.8;
+  }
+
+  .intro-title {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .intro-nav {
+    justify-content: flex-start;
+  }
+
+  .welcome-title {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #b85c4d;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    margin-bottom: 2rem;
+  }
+
+  .clock-display {
+    margin: 2rem 0;
+    font-family: "JetBrains Mono", "Roboto Mono", monospace;
+    color: #2d2d2d;
+  }
+
+  .date-row {
+    font-size: 1.5rem;
+    font-weight: 500;
+    opacity: 0.6;
+    margin-bottom: 0.5rem;
+  }
+
+  .time-row {
+    font-size: 4rem;
+    font-weight: 900;
+    letter-spacing: -2px;
+    line-height: 1;
+  }
+
+  .welcome-nav {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 2.5rem;
+  }
+
+  .welcome-btn {
+    text-decoration: none;
+    padding: 0.8rem 1.8rem;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    transition: 0.3s;
+  }
+
+  .welcome-btn:not(.secondary) {
+    background: #b85c4d;
+    color: white;
+    box-shadow: 0 10px 20px -5px rgba(184, 92, 77, 0.4);
+  }
+
+  .welcome-btn.secondary {
+    background: rgba(0, 0, 0, 0.05);
+    color: #555;
+  }
+
+  .welcome-btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+  }
+
+  /* 行動裝置適配 */
+  @media (max-width: 768px) {
+    .time-row {
+      font-size: 3.5rem;
+    }
+    .hero-integrated-card {
+      padding: 2.5rem 1.5rem;
+      flex-direction: column;
+      gap: 2rem;
+    }
+    .clock-section {
+      padding-right: 0;
+      width: 100%;
+    }
+    .intro-section {
+      border-left: none;
+      padding-left: 0;
+      padding-top: 2.5rem;
+      width: 100%;
+      position: relative;
+    }
+    .intro-section::before {
+      width: 40%;
+      height: 3px;
+      left: 50%;
+      top: 0;
+      transform: translateX(-50%);
+      background: linear-gradient(
+        to right,
+        transparent,
+        var(--primary-red),
+        transparent
+      );
+    }
+    .welcome-title {
+      letter-spacing: 0.15em;
+      font-size: 1rem;
+    }
+  }
+  @media (max-width: 480px) {
+    .time-row {
+      font-size: 2.8rem;
+    }
+    .welcome-nav {
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .welcome-btn {
+      width: 100%;
+    }
+  }
+  @media (max-width: 360px) {
+    .time-row {
+      font-size: 2.2rem;
+    }
+    .glass-clock-card {
+      padding: 1.8rem 1rem;
+    }
+    .welcome-container {
+      overflow: hidden; /* 極小螢幕防橫向溢出 */
+    }
+  }
+</style>

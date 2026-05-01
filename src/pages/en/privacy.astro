@@ -1,0 +1,109 @@
+---
+/* src/pages/en/privacy.astro */
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import AboutSidebar from "../../components/AboutSidebar.astro";
+import { useTranslations } from "../../i18n/utils";
+
+const t = useTranslations('en');
+const currentPath = Astro.url.pathname;
+const siteUrl = Astro.site ? Astro.site.toString().replace(/\/$/, '') : 'https://blog.ouoxo.com';
+const pageUrl = new URL(currentPath, siteUrl).href;
+---
+
+<BaseLayout title="Privacy Policy">
+  <script type="application/ld+json" set:html={`
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Privacy Policy",
+      "url": ${JSON.stringify(pageUrl)},
+      "description": "Privacy policy explaining how we collect and handle user data.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "夈似"
+      }
+    }
+  `} />
+  <div class="page-container" style="margin-top: 2rem;">
+    <div class="content-wrapper">
+      <AboutSidebar currentPath={currentPath} lang="en" />
+      <main class="main-content">
+        <article class="glass-card post-article-body" style="padding: 2.5rem;">
+          <div class="markdown-content about-enhanced">
+            <h2>Privacy Policy</h2>
+            <p>This site is committed to protecting user privacy. The following explains our policies regarding the handling of user data:</p>
+            
+            <h3>Information Collection</h3>
+            <ul>
+              <li><strong>Information Collection:</strong> This site is a static website built with the Astro framework. We do not actively collect, store, or track personally identifiable information, IP addresses, or browsing history on the server side.</li>
+              <li><strong>Traffic Analytics (Google Analytics):</strong> This site uses Google Analytics (GA4) to collect anonymous traffic information. This helps us understand how our site is used and optimize its content. All data is anonymized and contains no personally identifiable information.</li>
+              <li>You can choose whether to allow Google Analytics to collect your browsing data using the "Your Privacy Choices" panel below. If you disable this option, the GA4 tracking code will not be loaded.</li>
+              <li><strong>Timezone Detection:</strong> The homepage clock uses your browser's built-in timezone information, or you can manually select a timezone. Your selected timezone is stored in local storage.</li>
+            </ul>
+
+            <h3>Advertising and Cookie Statement (AdSense)</h3>
+            <ul>
+              <li>This site uses Google AdSense to display ads. Google, as a third-party vendor, uses cookies to serve ads based on your visits to this site and other sites on the Internet.</li>
+              <li>You can manage or opt out of personalized advertising by visiting the <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer">Google Ad Settings</a> page.</li>
+            </ul>
+
+            <h3>Local Storage and Privacy Settings</h3>
+            <ul>
+              <li><strong>Local Storage:</strong> We use LocalStorage to remember your selected timezone setting. You can control whether this site remembers your setting in the privacy settings below:
+                <ul>
+                  <li><strong>Allow Timezone Memory:</strong> When enabled, your selected timezone will be stored locally and automatically loaded on your next visit.</li>
+                  <li><strong>Disable Timezone Memory:</strong> When disabled, your timezone selection will not be saved, and will reset to the default on each visit.</li>
+                </ul>
+              </li>
+            </ul>
+
+            <h3>Privacy Settings Panel</h3>
+            <div id="privacy-settings-panel" style="border: 1px solid #ddd; padding: 1rem; border-radius: 8px; background-color: #f9f9f9; margin: 1rem 0;">
+              <h4 style="margin-top: 0;">Your Privacy Choices</h4>
+              <label style="display: flex; align-items: center; margin-bottom: 1rem; cursor: pointer;">
+                <input type="checkbox" id="remember-timezone-toggle" style="margin-right: 0.5rem; width: 18px; height: 18px; cursor: pointer; accent-color: #b85c4d;" />
+                <span>Allow this site to remember my selected timezone setting</span>
+              </label>
+              <label style="display: flex; align-items: center; margin-bottom: 1rem; cursor: pointer;">
+                <input type="checkbox" id="enable-analytics-toggle" style="margin-right: 0.5rem; width: 18px; height: 18px; cursor: pointer; accent-color: #b85c4d;" />
+                <span>Allow Google Analytics (GA4) to collect browsing data for site analysis</span>
+              </label>
+              <p style="font-size: 0.9rem; color: #666;">Settings take effect after clicking "Save Settings". Disabling GA4 will take effect on next page load.</p>
+              <button type="button" id="privacy-save-inline" style="padding: 0.4rem 1.2rem; border-radius: 999px; border: none; background: #b85c4d; color: #fff; font-weight: 600; cursor: pointer;">Save Settings</button>
+            </div>
+          </div>
+        </article>
+      </main>
+    </div>
+  </div>
+</BaseLayout>
+
+<script is:inline>
+  // Initialize privacy settings panel
+  var settings = window.__privacySettings || { rememberTimezone: true, enableAnalytics: true, hasSetCookies: false };
+
+  var tzToggle = document.getElementById('remember-timezone-toggle');
+  var gaToggle = document.getElementById('enable-analytics-toggle');
+  var saveBtn = document.getElementById('privacy-save-inline');
+
+  if (tzToggle) tzToggle.checked = settings.hasSetCookies ? (settings.rememberTimezone !== false) : true;
+  if (gaToggle) gaToggle.checked = settings.hasSetCookies ? (settings.enableAnalytics !== false) : true;
+
+  if (saveBtn) {
+    saveBtn.addEventListener('click', function() {
+      if (typeof window.updatePrivacySettings === 'function') {
+        var tzChecked = tzToggle ? tzToggle.checked : true;
+        var gaChecked = gaToggle ? gaToggle.checked : true;
+        window.updatePrivacySettings({
+          hasSetCookies: true,
+          rememberTimezone: tzChecked,
+          enableAnalytics: gaChecked
+        });
+        if (!tzChecked) {
+          try { localStorage.removeItem('selectedTimezone'); } catch(e) {}
+        }
+        window.location.reload();
+      }
+    });
+  }
+</script>

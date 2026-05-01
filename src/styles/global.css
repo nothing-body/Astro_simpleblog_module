@@ -1,0 +1,79 @@
+:root {
+  --red-0: #ff0000;
+  --red-1: #ff5252;
+  --red-2: #ff7c7c;
+  --red-3: #ffafaf;
+  --red-4: #ffd0d0;
+  --red-5: #ffecec;
+  --red-5-5: #fff3f3;
+  --red-6: #fff7f7;
+  --color-red-6-shadow: rgba(255, 78, 78, 0.6);
+  --color-red-3-shadow: rgba(255, 78, 78, 0.3);
+  --grey-9: #888;
+  --grey-7: var(--color-default);
+
+  --color-archive-year: black;
+  --color-default: #444;
+  --color-border: var(--red-3);
+  --color-link: var(--red-1);
+  --color-background: #eee;
+  --color-code-background: #f8f8f8;
+  --color-header-background: rgba(255, 255, 255, 0.9);
+  --color-footer-background: #fff;
+  --color-mobile-nav-background: #fff;
+  --color-wrap: #fff;
+
+  --color-h2-border: #eee;
+  --color-meta-shadow: var(--red-6);
+  --color-hover-shadow: rgba(120, 120, 120, 0.15);
+  --color-h2-after: var(--red-1);
+
+  --shadow-meta: 0 0 5px 2px var(--color-meta-shadow);
+  --shadow-meta-hover: 0 0 6px 4px var(--color-meta-shadow);
+  --shadow-card: 0 0 10px 2px var(--color-hover-shadow);
+  --shadow-card-hover: 0 0 10px 4px var(--color-hover-shadow);
+  --shadow-red-6-shadow: 0 0 8px var(--color-red-6-shadow);
+}
+
+[data-theme="dark"]:root {
+  --red-0: var(--red-1);
+  --red-4: rgba(255, 208, 208, .5);
+  --red-5: rgba(255, 228, 228, .15);
+  --red-5-5: rgba(255, 236, 236, .05);
+  --red-6: rgba(255, 243, 243, .2);
+
+  --color-archive-year: #999;
+  --color-default: #999;
+  --color-border: var(--red-5);
+  --color-background: #21252b;
+  --color-code-background: rgba(232, 232, 232, 0.2);
+  --color-header-background: #222222;
+  --color-footer-background: #21252b;
+  --color-mobile-nav-background: #21252b;
+  --color-wrap: #272b30;
+
+  --color-h2-border: #47474a;
+  --color-meta-shadow: rgba(0, 0, 0, 0.2);
+  --color-hover-shadow: rgba(0, 0, 0, 0.2);
+
+  img {
+    filter: brightness(70%);
+  }
+}
+
+/* fix astro bug https://github.com/withastro/astro/issues/9521 */
+svg:not(:root).svg-inline--fa, svg:not(:host).svg-inline--fa {
+  overflow: visible;
+  box-sizing: content-box;
+}
+.svg-inline--fa {
+  display: var(--fa-display, inline-block);
+  height: 1em;
+  overflow: visible;
+  vertical-align: -0.125em;
+}
+
+[data-aos^="fade"],
+[data-aos^="zoom"] {
+  transition-property: all !important;
+}

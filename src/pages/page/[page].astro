@@ -1,0 +1,50 @@
+---
+/* 檔案路徑：src/pages/page/[page].astro */
+import { getCollection } from 'astro:content';
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Sidebar from "../../components/Sidebar.astro";
+import PostCard from "../../components/PostCard.astro";
+import Pagination from "../../components/Pagination.astro";
+import type { PaginateFunction } from 'astro';
+
+// 靜態模式：build 時為每一頁文章列表產生靜態 HTML
+export async function getStaticPaths({ paginate }: { paginate: PaginateFunction }) {
+  const allPosts = await getCollection('blog', ({ id }) => id.startsWith('zh-tw/'));
+  const sortedPosts = allPosts.sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+  
+  return paginate(sortedPosts, { pageSize: 5 });
+}
+
+const { page } = Astro.props;
+const { data: posts } = page;
+
+const allPosts = await getCollection('blog', ({ id }) => id.startsWith('zh-tw/'));
+
+const totalPages = page.lastPage || 1;
+const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
+---
+
+<BaseLayout title={`第 ${page.currentPage} 頁 - 夈似`}>
+  <div class="page-container">
+    <div class="content-wrapper">
+        <Sidebar allPosts={allPosts} lang="zh-tw" />
+
+      <main class="main-content">
+        <h2 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 0.6rem;">文章列表 (第 {page.currentPage} 頁)</h2>
+        <hr style="border: none; border-top: 2px solid #333; margin-bottom: 2.5rem; opacity: 0.8;" />
+
+        {posts.map((post: any) => <PostCard post={post} lang="zh-tw" />)}
+
+        <Pagination 
+          currentPage={page.currentPage} 
+          totalPages={totalPages} 
+          prevUrl={page.url.prev} 
+          nextUrl={page.url.next} 
+          getPageUrl={(num) => num === 1 ? '/posts' : `/page/${num}`} 
+        />
+      </main>
+    </div>
+  </div>
+</BaseLayout>
+
+

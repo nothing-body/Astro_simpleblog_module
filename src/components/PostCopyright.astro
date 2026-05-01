@@ -1,0 +1,102 @@
+---
+/* src/components/PostCopyright.astro */
+export interface Props {
+  canonicalUrl: string;
+  title: string;
+  lang: 'zh-tw' | 'en';
+}
+
+const { canonicalUrl, title, lang } = Astro.props;
+---
+
+<section class="post-copyright-card">
+  <div class="copyright-content">
+    <div class="copyright-item">
+      <span class="copyright-label">{lang === 'zh-tw' ? '本文作者' : 'Author'}</span>
+      <span class="copyright-value">夈似 (夈似)</span>
+    </div>
+    <div class="copyright-item">
+      <span class="copyright-label">{lang === 'zh-tw' ? '本文連結' : 'Link'}</span>
+      <span class="copyright-value"><a href={canonicalUrl}>{canonicalUrl}</a></span>
+    </div>
+    <div class="copyright-item">
+      <span class="copyright-label">{lang === 'zh-tw' ? '本文標題' : 'Title'}</span>
+      <span class="copyright-value">{title}</span>
+    </div>
+    <div class="copyright-item">
+      <span class="copyright-label">{lang === 'zh-tw' ? '本文版權' : 'License'}</span>
+      <span class="copyright-value">
+        {lang === 'zh-tw' ? '本博客所有文章除特別聲明外，均採用 ' : 'All articles in this blog are licensed under '}
+        <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-NC-SA 4.0</a>
+        {lang === 'zh-tw' ? ' 授權協議，轉載請註明出處。' : ' license. Please indicate the source when reprinting.'}
+      </span>
+    </div>
+  </div>
+</section>
+
+<style>
+  .post-copyright-card {
+    margin: 5rem 0 2rem 0;
+    padding: 1.5rem 2rem;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    border-left: 4px solid #ff999a;
+    position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .post-copyright-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(255, 153, 154, 0.12);
+  }
+  .copyright-item {
+    display: flex;
+    font-size: 0.95rem;
+    line-height: 1.8;
+    margin-bottom: 0.5rem;
+  }
+  .copyright-item:last-child {
+    margin-bottom: 0;
+  }
+  .copyright-label {
+    color: #888;
+    font-weight: 700;
+    min-width: 90px;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .copyright-label::after {
+    content: ':';
+    margin-left: 2px;
+  }
+  .copyright-value {
+    color: #444;
+    font-weight: 500;
+  }
+  .copyright-value a {
+    color: #ff999a;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: all 0.2s ease;
+  }
+  .copyright-value a:hover {
+    color: #ff3333;
+    border-bottom: 1px solid #ff3333;
+  }
+
+  @media (max-width: 768px) {
+    .post-copyright-card {
+      padding: 1.2rem;
+      margin-top: 3rem;
+    }
+    .copyright-item {
+      flex-direction: column;
+    }
+    .copyright-label {
+      margin-bottom: 2px;
+    }
+    .copyright-label::after {
+      display: none;
+    }
+  }
+</style>

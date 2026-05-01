@@ -1,0 +1,46 @@
+---
+/* src/components/AboutSidebar.astro */
+const { currentPath, lang = 'zh-tw' } = Astro.props;
+
+const menuZh = [
+  { label: '關於本站', path: '/about' },
+  { label: '聯絡我們', path: '/contact' },
+  { label: '隱私權政策', path: '/privacy' },
+  { label: '免責聲明', path: '/disclaimer' }
+];
+
+const menuEn = [
+  { label: 'About This Site', path: '/en/about' },
+  { label: 'Contact Us', path: '/en/contact' },
+  { label: 'Privacy Policy', path: '/en/privacy' },
+  { label: 'Disclaimer', path: '/en/disclaimer' }
+];
+
+const menu = lang === 'en' ? menuEn : menuZh;
+
+// Helper to check if a menu path matches the current path exactly
+// Also handles trailing slashes
+const isMatch = (menuPath: string) => {
+  return currentPath === menuPath || currentPath === menuPath + '/';
+};
+
+---
+
+<aside class="sidebar">
+  <div class="glass-card" style="padding: 1.2rem; margin-bottom: 1.5rem;">
+    <h3 class="widget-title">{lang === 'en' ? 'About' : '關於本站'}</h3>
+    <ul class="category-list">
+      {menu.map((item) => (
+        <li>
+          <a
+            href={item.path}
+            class="cat-link"
+            style={isMatch(item.path) ? "color: var(--primary-red) !important; font-weight: 800;" : ""}
+          >
+            <span>{item.label}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</aside>

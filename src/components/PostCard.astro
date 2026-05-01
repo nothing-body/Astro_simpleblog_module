@@ -1,0 +1,84 @@
+---
+/* src/components/PostCard.astro */
+import type { CollectionEntry } from 'astro:content';
+import { useTranslatedPath } from '../i18n/utils';
+
+// Security enhancement: Strictly type props to prevent data injection
+export interface Props {
+  post: CollectionEntry<'blog'>;
+  lang: 'zh-tw' | 'en';
+}
+
+const { post, lang } = Astro.props;
+const translatePath = useTranslatedPath(lang);
+
+const isEn = lang === 'en';
+const dateLocale = isEn ? 'en-GB' : 'zh-TW';
+
+// Safe ID transformation for Astro 5
+const cleanId = post.id.replace(/\.mdx?$/, '').replace(/^(zh-tw|en)\//, '');
+// Ensure safe routing strictly
+const postUrl = isEn ? `/en/posts/${cleanId}` : `/posts/${cleanId}`;
+---
+
+<article class="glass-card">
+  <a href={postUrl} class="post-container-link" rel="bookmark">
+    <div class="card-meta">
+      <span class="card-category">{post.data.category}</span>
+      <span class="card-date">{post.data.pubDate.toLocaleDateString(dateLocale)}</span>
+    </div>
+    
+    <h2 class="post-title">{post.data.title}</h2>
+    
+    <div class="card-footer">
+      <div class="card-tags">
+        {post.data.tags.map((tag: string) => (
+          <span class="card-tag">#{tag}</span>
+        ))}
+      </div>
+      <span class="read-more">READ MORE &rarr;</span>
+    </div>
+  </a>
+</article>
+
+<style>
+  /* Scoped component CSS to eliminate global/inline unsafe styles */
+  .card-meta {
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .card-category {
+    color: var(--primary-red);
+    font-weight: 800;
+    font-size: 0.95rem;
+  }
+  .card-date {
+    color: #888;
+    font-size: 0.9rem;
+  }
+  .card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+  }
+  .card-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .card-tag {
+    color: var(--primary-red);
+    font-weight: 600;
+    font-size: 0.9rem;
+    opacity: 0.8;
+  }
+  .read-more {
+    color: var(--primary-red);
+    font-weight: 800;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+</style>

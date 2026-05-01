@@ -1,0 +1,164 @@
+---
+/* src/components/HeadMeta.astro */
+export interface Props {
+  title: string;
+  description: string;
+  currentUrl: string;
+  siteUrl: string;
+}
+
+const { title, description, currentUrl, siteUrl } = Astro.props;
+
+const urlObj = new URL(currentUrl);
+const path = urlObj.pathname;
+const isEn = path.startsWith('/en/') || path === '/en';
+
+let twPath = path;
+let enPath = path;
+
+if (isEn) {
+  twPath = path.replace(/^\/en/, '') || '/';
+} else {
+  enPath = `/en${path === '/' ? '' : path}`;
+}
+
+const urlTw = new URL(twPath, siteUrl).href;
+const urlEn = new URL(enPath, siteUrl).href;
+---
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta
+  http-equiv="Content-Security-Policy"
+  content="default-src 'self';
+           script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://pagead2.googlesyndication.com https://tpc.googlesyndication.com https://googleads.g.doubleclick.net https://static.cloudflareinsights.com;
+           style-src 'self' 'unsafe-inline';
+           img-src 'self' data: https://www.googletagmanager.com https://www.google-analytics.com https://pagead2.googlesyndication.com https://images.unsplash.com https://i.imgur.com https://drive.google.com https://docs.google.com https://*.googleusercontent.com https://*.githubusercontent.com;
+           connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net https://googleads.g.doubleclick.net https://cloudflareinsights.com;
+           frame-src https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net;
+           font-src 'self';
+           base-uri 'self';
+           form-action 'self';"
+/>
+<!-- X-Content-Type-Options 防止 MIME 類型嗅探攻擊 -->
+<meta http-equiv="X-Content-Type-Options" content="nosniff" />
+<!-- Referrer Policy：跨來源請求只傳送 origin，保護用戶隱私 -->
+<meta name="referrer" content="strict-origin-when-cross-origin" />
+<link rel="sitemap" href="/sitemap-index.xml" />
+<title>{title}</title>
+<meta name="description" content={description} />
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+<link rel="canonical" href={currentUrl} />
+<link rel="alternate" hreflang="zh-tw" href={urlTw} />
+<link rel="alternate" hreflang="en" href={urlEn} />
+<link rel="alternate" hreflang="x-default" href={urlTw} />
+
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={currentUrl} />
+<meta property="og:type" content="website" />
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', function() {
+    if (!document.querySelector('code.language-mermaid')) return;
+    var script = document.createElement('script');
+    script.src = '/libs/mermaid.min.js';
+    script.onload = function() {
+      if (typeof mermaid === 'undefined') return;
+      mermaid.initialize({ startOnLoad: false, theme: 'default' });
+      var graphs = document.querySelectorAll('code.language-mermaid');
+      for (var i = 0; i < graphs.length; i++) {
+        var el = graphs[i];
+        var pre = el.closest('pre');
+        var source = el.textContent;
+        if (pre && source) {
+          var wrapper = document.createElement('div');
+          wrapper.className = 'mermaid';
+          wrapper.id = 'mermaid-' + i;
+          wrapper.textContent = source;
+          pre.replaceWith(wrapper);
+        }
+      }
+      mermaid.run({ querySelector: '.mermaid' });
+    };
+    document.head.appendChild(script);
+  });
+</script>
+
+<script
+  type="application/ld+json"
+  is:inline
+  set:html={`
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": ${JSON.stringify(title)},
+    "url": ${JSON.stringify(siteUrl)},
+    "description": ${JSON.stringify(description)}
+  }
+`}
+/>
+
+<link rel="icon" type="image/x-icon" href="/logo.ico" />
+
+<script is:inline>
+  (function () {
+    var defaultSettings = { rememberTimezone: true, enableAnalytics: true, hasSetCookies: false };
+    var stored = null;
+    try {
+      stored = JSON.parse(localStorage.getItem("privacySettings") || "null");
+    } catch (e) {
+      stored = null;
+    }
+    if (!stored || typeof stored !== "object") {
+      stored = defaultSettings;
+    } else {
+      for (var key in defaultSettings) {
+        if (!Object.prototype.hasOwnProperty.call(stored, key)) {
+          stored[key] = defaultSettings[key];
+        }
+      }
+    }
+    window.__privacySettings = stored;
+    window.updatePrivacySettings = function (partial) {
+      if (!partial || typeof partial !== "object") return;
+      var next = {};
+      for (var k in stored) { next[k] = stored[k]; }
+      for (var p in partial) { next[p] = partial[p]; }
+      stored = next;
+      window.__privacySettings = stored;
+      try {
+        localStorage.setItem("privacySettings", JSON.stringify(stored));
+      } catch (e) {}
+    };
+  })();
+</script>
+
+<script is:inline>
+  (function() {
+    var s = window.__privacySettings;
+    if (s && s.hasSetCookies && s.enableAnalytics) {
+      var script = document.createElement('script');
+      script.async = true;
+      script.src = "https://www.googletagmanager.com/gtag/js?id=G-50L0P7CTCW";
+      document.head.appendChild(script);
+
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      window.gtag = gtag;
+      gtag('js', new Date());
+      gtag('config', 'G-50L0P7CTCW');
+    }
+  })();
+</script>
+
+<script is:inline>
+  (function () {
+    const path = window.location.pathname;
+    const isAllPosts = /^\/(en\/)?posts\/?$/.test(path) || /^\/(en\/)?page\/\d+\/?$/.test(path);
+    const isCategoryOrTag = /\/(categories|tags)\//.test(path);
+    if (isAllPosts || isCategoryOrTag) {
+      sessionStorage.setItem("lastListPage", path);
+    }
+  })();
+</script>

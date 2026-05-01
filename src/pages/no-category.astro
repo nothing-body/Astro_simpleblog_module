@@ -1,0 +1,96 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { useTranslations } from "../i18n/utils";
+
+const lang = 'zh-tw';
+const t = useTranslations(lang);
+---
+
+<BaseLayout title={t('noCategory.title')}>
+  <div class="no-category-container">
+    <div class="glass-card error-card">
+      <div class="error-icon">?</div>
+      <h1>目前尚無相關內容</h1>
+      <p>很抱歉，在此語系中尚未有此分類或標籤的文章。</p>
+      <div class="redirect-info">
+        <span class="spinner"></span>
+        <span>正在為您跳轉至所有文章...</span>
+      </div>
+      <a href="/posts" class="manual-link">按此立即跳轉</a>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  // 3秒後跳轉至文章列表
+  setTimeout(() => {
+    window.location.href = "/posts";
+  }, 3000);
+</script>
+
+<style>
+  .no-category-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+    padding: 2rem;
+  }
+  .error-card {
+    max-width: 500px;
+    width: 100%;
+    padding: 3rem;
+    text-align: center;
+    border-radius: 20px;
+  }
+  .error-icon {
+    font-size: 4rem;
+    font-weight: 900;
+    color: var(--primary-red);
+    margin-bottom: 1.5rem;
+    opacity: 0.2;
+  }
+  h1 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    color: #2d2d2d;
+  }
+  p {
+    color: #666;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+  }
+  .redirect-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: #888;
+    font-size: 0.95rem;
+  }
+  .spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #eee;
+    border-top: 2px solid var(--primary-red);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  .manual-link {
+    display: inline-block;
+    margin-top: 2rem;
+    color: var(--primary-red);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.9rem;
+    border-bottom: 2px solid transparent;
+    transition: 0.3s;
+  }
+  .manual-link:hover {
+    border-color: var(--primary-red);
+  }
+</style>

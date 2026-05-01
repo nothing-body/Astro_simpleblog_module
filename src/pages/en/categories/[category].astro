@@ -1,0 +1,17 @@
+---
+/* src/pages/en/categories/[category].astro */
+import { getCollection } from 'astro:content';
+
+// 靜態模式：必須用 getStaticPaths 預先列出所有英文分類，才能生成對應的跳轉頁
+export async function getStaticPaths() {
+  const allPosts = await getCollection('blog', ({ id }) => id.startsWith('en/'));
+  const categories = [...new Set(allPosts.map(p => p.data.category).filter(Boolean))];
+  
+  return categories.map(cat => ({
+    params: { category: cat.toString() }
+  }));
+}
+
+const { category } = Astro.params;
+---
+<meta http-equiv="refresh" content={`0;url=/en/categories/${category}/1`} />

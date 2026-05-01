@@ -1,0 +1,46 @@
+﻿---
+/* src/pages/disclaimer.astro */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import AboutSidebar from "../components/AboutSidebar.astro";
+import { useTranslations } from "../i18n/utils";
+
+const t = useTranslations('zh-tw');
+const currentPath = Astro.url.pathname;
+const siteUrl = Astro.site ? Astro.site.toString().replace(/\/$/, '') : 'https://blog.ouoxo.com';
+const pageUrl = new URL(currentPath, siteUrl).href;
+---
+
+<BaseLayout title="免責聲明">
+  <script type="application/ld+json" set:html={`
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "免責聲明",
+      "url": ${JSON.stringify(pageUrl)},
+      "description": "本站免責聲明，說明內容使用與責任範圍。",
+      "publisher": {
+        "@type": "Organization",
+        "name": "夈似"
+      }
+    }
+  `} />
+  <div class="page-container" style="margin-top: 2rem;">
+    <div class="content-wrapper">
+      <AboutSidebar currentPath={currentPath} lang="zh-tw" />
+      <main class="main-content">
+        <article class="glass-card post-article-body" style="padding: 2.5rem;">
+          <div class="markdown-content about-enhanced">
+            <h2>免責聲明</h2>
+            <p>請在閱讀與使用本網站內容前，詳細閱讀以下免責聲明：</p>
+            <h3>內容真實性與正確性</h3>
+            <p>本站發佈之內容主要是作者個人的學習筆記、技術隨筆與主觀心得。我們不保證文章所述的技術方案或軟體資訊具備絕對的準確性或時效性。技術日新月異，在實際應用至正式環境前自行進行評估與測試，請務必自行測試並備份資料。</p>
+            <h3>外部連結</h3>
+            <p>本站包含指向第三方網站的連結。我們不對這些外部網站的內容、隱私政策及安全性承擔任何責任。</p>
+            <h3>損害賠償</h3>
+            <p>如因採納本站文章的任何建議而導致資料遺失、設備損壞或其他形式之損失，作者概不承擔任何法律與賠償責任。</p>
+          </div>
+        </article>
+      </main>
+    </div>
+  </div>
+</BaseLayout>

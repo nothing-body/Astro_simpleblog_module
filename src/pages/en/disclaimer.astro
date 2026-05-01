@@ -1,0 +1,46 @@
+---
+/* src/pages/en/disclaimer.astro */
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import AboutSidebar from "../../components/AboutSidebar.astro";
+import { useTranslations } from "../../i18n/utils";
+
+const t = useTranslations('en');
+const currentPath = Astro.url.pathname;
+const siteUrl = Astro.site ? Astro.site.toString().replace(/\/$/, '') : 'https://blog.ouoxo.com';
+const pageUrl = new URL(currentPath, siteUrl).href;
+---
+
+<BaseLayout title="Disclaimer">
+  <script type="application/ld+json" set:html={`
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Disclaimer",
+      "url": ${JSON.stringify(pageUrl)},
+      "description": "Disclaimer and legal information.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "夈似"
+      }
+    }
+  `} />
+  <div class="page-container" style="margin-top: 2rem;">
+    <div class="content-wrapper">
+      <AboutSidebar currentPath={currentPath} lang="en" />
+      <main class="main-content">
+        <article class="glass-card post-article-body" style="padding: 2.5rem;">
+          <div class="markdown-content about-enhanced">
+            <h2>Disclaimer</h2>
+            <p>Welcome to this personal technical blog and digital notebook. As a platform dedicated to sharing software reviews, server configurations, and general technical essays, it is important to establish clear boundaries regarding the information provided here. Please carefully read the following comprehensive disclaimer before reading and implementing any content from this website:</p>
+            <h3>Content Authenticity and Accuracy</h3>
+            <p>The content published on this site is primarily the author's personal study notes, technical essays, and subjective experiences. We do not guarantee the absolute accuracy or timeliness of the technical solutions or software information described in the articles. Technology evolves rapidly, please evaluate and test on your own before applying to a production environment. Please be sure to conduct your own tests and backup your data.</p>
+            <h3>External Links</h3>
+            <p>This site contains links to third-party websites. We are not responsible for the content, privacy policies, or security of these external websites.</p>
+            <h3>Damages and Compensation</h3>
+            <p>If any advice from this site's articles is adopted and results in data loss, equipment damage, or any other form of loss, the author assumes no legal or compensatory responsibility whatsoever.</p>
+          </div>
+        </article>
+      </main>
+    </div>
+  </div>
+</BaseLayout>
