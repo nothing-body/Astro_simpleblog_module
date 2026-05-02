@@ -7,14 +7,14 @@ import CookieConsent from "../components/CookieConsent.astro";
 import { getLangFromUrl } from "../i18n/utils";
 
 const {
-  title = "夈似",
-  description = "分享軟體使用心得、記錄/分享查找到的有趣/實用軟體、生活日常與隨手小記的個人網站與數位筆記",
+  title = "My Blog",
+  description = "Welcome to my personal blog template. Please replace this with your own description.",
   customCanonical,
 } = Astro.props;
 const currentPath = Astro.url.pathname;
 const siteUrl = Astro.site
   ? Astro.site.toString().replace(/\/$/, "")
-  : "https://blog.ouoxo.com";
+  : "https://example.com";
 const currentUrl = customCanonical || new URL(currentPath, siteUrl).href;
 
 const lang = getLangFromUrl(Astro.url);

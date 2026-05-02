@@ -1,4 +1,4 @@
-﻿---
+---
 /* src/pages/en/index.astro */
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { useTranslations } from "../../i18n/utils";
@@ -17,7 +17,7 @@ const recentPosts = allPosts
 // dynamic SEO URLs
 const siteUrl = Astro.site
   ? Astro.site.toString().replace(/\/$/, "")
-  : "https://blog.ouoxo.com";
+  : "https://example.com";
 const pageUrl = new URL(Astro.url.pathname, siteUrl).href;
 ---
 
@@ -28,8 +28,8 @@ const pageUrl = new URL(Astro.url.pathname, siteUrl).href;
     {
       "@context": "https://schema.org",
       "@type": "Blog",
-      "name": "Yushih",
-      "description": "Personal blog sharing software experiences, interesting tools, daily life, and quick notes about a digital lifestyle",
+      "name": "My Blog",
+      "description": "Welcome to my personal blog template.",
       "url": ${JSON.stringify(pageUrl)},
       "publisher": {
         "@type": "Person",
@@ -78,16 +78,14 @@ const pageUrl = new URL(Astro.url.pathname, siteUrl).href;
               >Welcome to my personal blog!</strong
             >
             <span style="font-weight: 600; color: #333;"
-              >This is a digital space for quick notes.</span
+              >This is a default template layout. Please edit this in src/pages/en/index.astro.</span
             >
           </p>
           <p
             style="font-weight: 500; font-size: 1.05rem; color: #555; line-height: 1.8;"
           >
-            Documenting practical software reviews, technical development, VPS
-            server configurations, and daily thoughts.<br />
-            I hope these preserved experiences resonate with and bring value to fellow
-            explorers of the digital world.
+            This is a static blog template built with Astro. You can easily replace the contents of this section.<br />
+            Remember to replace the images and logos in the public directory, and configure the site in src/pages/.
           </p>
           <nav class="welcome-nav intro-nav">
             <a href="/en/posts" class="welcome-btn">{t("nav.posts")}</a>

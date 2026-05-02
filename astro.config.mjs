@@ -39,7 +39,7 @@ function myRemarkDirectiveAutoStyle() {
 
 // 靜態輸出模式
 export default defineConfig({
-  site: 'https://blog.ouoxo.com',
+  site: 'https://example.com',
   integrations: [
     mermaid(),
     astroExpressiveCode({

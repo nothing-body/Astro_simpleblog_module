@@ -1,3 +1,10 @@
+---
+title: "Astro Minimal Static Personal Blog Template"
+pubDate: 2026-05-02
+category: "Dev"
+tags: ["Astro", "Template", "Blog", "Static"]
+---
+
 # Astro Minimal Static Personal Blog Template
 
 This project is an extremely simple personal blog built with [Astro](https://astro.build/).
@@ -59,14 +66,3 @@ If you do not fill in or modify them, the website will still run normally and **
      - `src/pages/index.astro` / `src/pages/en/index.astro` (Homepage Intro Text)
      - `src/pages/disclaimer.astro` / `src/pages/en/disclaimer.astro` (Disclaimer)
      - `src/pages/privacy.astro` / `src/pages/en/privacy.astro` (Privacy Policy)
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |

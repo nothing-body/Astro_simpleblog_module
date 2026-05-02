@@ -140,14 +140,14 @@ const urlEn = new URL(enPath, siteUrl).href;
     if (s && s.hasSetCookies && s.enableAnalytics) {
       var script = document.createElement('script');
       script.async = true;
-      script.src = "https://www.googletagmanager.com/gtag/js?id=G-50L0P7CTCW";
+      script.src = "https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX";
       document.head.appendChild(script);
 
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       window.gtag = gtag;
       gtag('js', new Date());
-      gtag('config', 'G-50L0P7CTCW');
+      gtag('config', 'G-XXXXXXXXXX');
     }
   })();
 </script>

@@ -8,7 +8,7 @@ const t = useTranslations("zh-tw");
 const currentPath = Astro.url.pathname;
 const siteUrl = Astro.site
   ? Astro.site.toString().replace(/\/$/, "")
-  : "https://blog.ouoxo.com";
+  : "https://example.com";
 const pageUrl = new URL(currentPath, siteUrl).href;
 ---
 
@@ -24,7 +24,7 @@ const pageUrl = new URL(currentPath, siteUrl).href;
       "description": "關於本站作者的介紹。",
       "publisher": {
         "@type": "Organization",
-        "name": "夈似"
+        "name": "My Blog"
       }
     }
   `}
@@ -37,44 +37,8 @@ const pageUrl = new URL(currentPath, siteUrl).href;
           <div class="markdown-content about-enhanced">
             <h2>關於本站 (About)</h2>
             <p>
-              歡迎來到我的個人部落格！<br />
-              這裡並非一個高度精雕細琢的專業入口網站，而是我個人在數位世界中的一塊自留地。
-            </p>
-
-            <h3>為什麼建立這個網站？</h3>
-            <p>
-              本站採用 Astro
-              現代化網頁框架構建。對我來說，這不僅是一個記錄空間，更是技術實踐後的備忘錄，用來防止自己遺忘操作細節。
-            </p>
-
-            <h3>這裡記錄了什麼？</h3>
-            <p>
-              本站內容主要圍繞著我在網上衝浪時發現的有趣軟體、技術，以及平時的日常隨手小記(有時可能發點宗教意味的文章)。你可以將其視為一份公開的「數位筆記本」，範疇包括：
-            </p>
-
-            <ul>
-              <li>
-                <strong>技術隨筆：</strong> 配置服務成功運行後的隨手紀錄。
-              </li>
-              <li>
-                <strong>工具心得：</strong> 軟體使用後的個人心得，或發現有趣軟體時的想法分享。
-              </li>
-              <li>
-                <strong>生活小記：</strong> 那些不經意間產生的靈感、生活瑣事與個人思考。
-              </li>
-            </ul>
-
-            <h3>關於內容的真實性</h3>
-            <p>
-              這裡的每一篇文章都是我的隨手小記，是隨性記錄與思考的產物。<br />
-              雖然內容較為隨興，但這份筆記首先是為了讓我未來的自己能回頭查閱；若能同時對來到這裡的你有所幫助，那便是額外的收穫。
-            </p>
-
-            <h3>關於英文翻譯</h3>
-            <p>
-              本站的英文文章內容均由 AI 模型從中文原文翻譯而成。
-              <br />
-              雖然已盡力保持語意精確，但仍可能存在表達較生硬或不準確之處，敬請見諒。
+              請在這裡輸入你的個人介紹。<br />
+              你可以在 <code>src/pages/about.astro</code> 檔案中修改這些文字。
             </p>
           </div>
         </article>

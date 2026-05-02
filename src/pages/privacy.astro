@@ -6,7 +6,7 @@ import { useTranslations } from "../i18n/utils";
 
 const t = useTranslations('zh-tw');
 const currentPath = Astro.url.pathname;
-const siteUrl = Astro.site ? Astro.site.toString().replace(/\/$/, '') : 'https://blog.ouoxo.com';
+const siteUrl = Astro.site ? Astro.site.toString().replace(/\/$/, '') : 'https://example.com';
 const pageUrl = new URL(currentPath, siteUrl).href;
 ---
 
@@ -20,7 +20,7 @@ const pageUrl = new URL(currentPath, siteUrl).href;
       "description": "本站隱私權政策，說明資料收集與處理方式。",
       "publisher": {
         "@type": "Organization",
-        "name": "夈似"
+        "name": "My Blog"
       }
     }
   `} />
@@ -31,32 +31,9 @@ const pageUrl = new URL(currentPath, siteUrl).href;
         <article class="glass-card post-article-body" style="padding: 2.5rem;">
           <div class="markdown-content about-enhanced">
             <h2>隱私權政策</h2>
-            <p>本站承諾保護使用者的隱私。以下內容說明本站處理使用者資料的相關政策：</p>
+            <p>請在這裡輸入你的隱私權政策內容。</p>
+            <p>你可以在 <code>src/pages/privacy.astro</code> 檔案中修改這些文字。</p>
             
-            <h3>資訊收集</h3>
-            <ul>
-              <li><strong>資訊收集：</strong> 本站為採用 Astro 架構的靜態網站。我們不會在伺服器端主動收集、儲存或追蹤使用者的個人識別資訊、IP 位址或瀏覽紀錄。</li>
-              <li><strong>流量統計 (Google Analytics)：</strong> 本站使用 Google Analytics (GA4) 收集匿名流量資訊，以協助我們了解網站使用情況並優化內容。這些數據皆為匿名化處理，不包含個人可識別身分資訊。</li>
-              <li>您可透過本頁下方的「您的隱私選擇」面板，自主選擇是否允許 Google Analytics 收集瀏覽數據。若您關閉此選項，GA4 追蹤碼將不會被載入。</li>
-              <li><strong>時區檢測：</strong> 首頁時鐘使用瀏覽器內建的時區資訊，或用戶手動選擇時區。選擇的時區儲存在本地儲存中。</li>
-            </ul>
-
-            <h3>廣告與 Cookie 聲明</h3>
-            <ul>
-              <li>本站使用 Google AdSense 投放廣告。Google 作為第三方供應商，會使用 Cookie 根據您在本站及網路其他位置的訪問紀錄來投放廣告。</li>
-              <li>您可以透過訪問 <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer">Google 廣告設定</a> 頁面，來管理或停用個人化廣告。</li>
-            </ul>
-
-            <h3>本機儲存</h3>
-            <ul>
-              <li><strong>本機儲存與隱私設定：</strong> 本站使用 LocalStorage 記住您選擇的時區設定。您可以在本頁下方的隱私設定中選擇是否允許本站記住此設定：
-                <ul>
-                  <li><strong>允許記住時區設定</strong>：打開此選項後，您選擇的時區會儲存在本機，下次訪問時會自動載入。</li>
-                  <li><strong>不允許記住時區設定</strong>：關閉此選項後，時區選擇不會被儲存，每次訪問時都會重置為預設值。</li>
-                </ul>
-              </li>
-            </ul>
-
             <h3>隱私設定面板</h3>
             <div id="privacy-settings-panel" style="border: 1px solid #ddd; padding: 1rem; border-radius: 8px; background-color: #f9f9f9; margin: 1rem 0;">
               <h4 style="margin-top: 0;">您的隱私選擇</h4>
