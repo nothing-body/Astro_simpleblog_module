@@ -3,6 +3,10 @@
 This project is an extremely simple personal blog built with [Astro](https://astro.build/).
 It is designed to be fully static, containing **no dynamic code**, to ensure maximum performance, security, and simplicity.
 
+## 🌐 Live Demo
+
+You can see a live example of this template in action here: [Live Demo](https://blog.ouoxo.com/en/)
+
 ## 🚀 Project Structure
 
 Inside this Astro project, you'll see the following structure:
